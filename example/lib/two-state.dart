@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:sliding_panel/sliding_panel.dart';
 
 class TwoStateExample extends StatefulWidget {
@@ -16,22 +15,16 @@ class _TwoStateExampleState extends State<TwoStateExample> {
     super.initState();
 
     pc = PanelController();
-
-    SchedulerBinding.instance.addPostFrameCallback((x) {
-      _updateSize(); // This is called to make panel size according to content
-    });
   }
-
-  GlobalKey keyContent = GlobalKey();
-
-  double _height = 200;
 
   Widget _content() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-          key: keyContent,
+          padding: EdgeInsets.symmetric(vertical: 16),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
                 margin: EdgeInsets.only(top: 16.0),
@@ -136,16 +129,10 @@ class _TwoStateExampleState extends State<TwoStateExample> {
         isTwoStatePanel: true, // only close and expand...
         size: PanelSize(
             closedHeight: 0,
-            expandedHeight: _height), // closedHeight can also be > 0
+            expandedHeight: 400), // closedHeight can also be > 0
+        // we are explicitly giving expandedHeight here, so if anything goes wrong, this size will be used
+        autoSizing: PanelAutoSizing(autoSizeExpanded: true),
       ),
     );
-  }
-
-  _updateSize() {
-    final RenderBox renderBox = keyContent.currentContext.findRenderObject();
-
-    setState(() {
-      _height = renderBox.size.height + 16;
-    });
   }
 }

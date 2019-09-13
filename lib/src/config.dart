@@ -28,6 +28,8 @@ class PanelCollapsedWidget {
   /// By default, [collapsedContent] is hidden only in [PanelState.expanded] mode.
   /// Set this to false, if you plan to hide [collapsedContent] in [PanelState.collapsed] mode.
   ///
+  /// If false, this is useful in case you plan to show some content in [PanelState.closed] mode.
+  ///
   /// Default : true
   final bool hideInExpandedOnly;
 
@@ -37,6 +39,17 @@ class PanelCollapsedWidget {
 
 /// The content to be displayed in the panel.
 class PanelContent {
+  /// The widget that will be shown above the panel, regardless of [PanelState] (A persistent widget).
+  ///
+  /// This can be used to drag the panel. (Ofcourse, other parts of the panel will also do).
+  ///
+  /// Generally, a 'pill' or a 'tablet' kind of header can be shown here, that hints user to scroll.
+  ///
+  /// If the height of this widget is not calculatable, it will NOT be shown.
+  ///
+  /// #Feature:Beta
+  final Widget headerContent;
+
   /// The widget that is shown as the panel content. When collapsed, content till [collapsedWidget] is shown.
   ///
   /// If [collapsedWidget] is provided, that will be shown over this and will crossfade when sliding.
@@ -52,29 +65,36 @@ class PanelContent {
   /// Crossfades when sliding.
   final PanelCollapsedWidget collapsedWidget;
 
-  const PanelContent(
-      {@required this.panelContent,
-      this.bodyContent,
-      this.collapsedWidget = const PanelCollapsedWidget()})
-      : assert(panelContent != null);
+  const PanelContent({
+    this.headerContent,
+    @required this.panelContent,
+    this.bodyContent,
+    this.collapsedWidget = const PanelCollapsedWidget(),
+  }) : assert(panelContent != null);
 }
 
-/// Provide different height of the panel according to panel's current state.
+/// Provide different height of the panel in pixels or percentage according to panel's current state.
 /// None of these should be null.
+///
+/// Make sure : closedHeight < collapsedHeight < expandedHeight.
+///
+/// If you give height > 0 and <= 1.0, it is considered as percentage of the screen size, if it is > 1.0, it is considered as pixels.
+///
+/// e.g., if you give 0.5, it is 50% of the screen, if you give 1.0, it is full screen, but if you give 75, it is pixels.
 class PanelSize {
-  /// Initial height of the panel. Panel is shown upto this when opened.
+  /// Initial height of the panel in pixels or percentage. Panel is shown upto this when opened.
   ///
-  /// Default : 0.0
+  /// Default : 0.0 pixels
   final double closedHeight;
 
-  /// Minimum height of the panel. Panel is shown upto this when collapsed.
+  /// Minimum height of the panel in pixels or percentage. Panel is shown upto this when collapsed.
   ///
-  /// Default : 100.0
+  /// Default : 100.0 pixels
   final double collapsedHeight;
 
-  /// Maximum height of the panel. Panel is shown upto this when expanded.
+  /// Maximum height of the panel in pixels or percentage. Panel is shown upto this when expanded.
   ///
-  /// Default : 300.0
+  /// Default : 300.0 pixels
   final double expandedHeight;
 
   const PanelSize(
@@ -187,4 +207,46 @@ class BackdropConfig {
       this.collapseOnTap = true,
       this.closeOnTap = true,
       this.effectInCollapsedMode = true});
+}
+
+/// If provided, the panel's height will be automatically calculated based on the content.
+///
+/// Note that even by setting this, please don't omit the [PanelSize] parameter. If the height is not calculatable, [PanelSize] parameters will be used.
+///
+/// Any height is maximum to screen size.
+///
+/// If this is used, when using a scrollable element, make sure it is shrinked.
+/// (e.g., When using ListView, set its shrinkWrap: true, when using Column, set its mainAxisSize: MainAxisSize.min).
+///
+/// This is applicable to any level of the children. (e.g., Column inside Container...)
+///
+/// #Feature:Beta
+class PanelAutoSizing {
+  /// If true and [PanelContent.headerContent] is provided, set panel's [PanelSize.closedHeight] to the header's height.
+  ///
+  /// If [PanelSize.closedHeight] is more than header's height, NOTHING will change.
+  ///
+  /// Default : true
+  final bool headerSizeIsClosed;
+
+  /// If true, set panel's [PanelSize.collapsedHeight] to the [PanelContent.collapsedWidget]'s height.
+  ///
+  /// If [PanelContent.headerContent] is used, its height will also be added to this.
+  ///
+  /// Invalid for Two-state panels.
+  ///
+  /// Default : false
+  final bool autoSizeCollapsed;
+
+  /// If true, set panel's [PanelSize.expandedHeight] to the [PanelContent.panelContent]'s height.
+  ///
+  /// If [PanelContent.headerContent] is used, its height will also be added to this.
+  ///
+  /// Default : false
+  final bool autoSizeExpanded;
+
+  const PanelAutoSizing(
+      {this.headerSizeIsClosed = true,
+      this.autoSizeCollapsed = false,
+      this.autoSizeExpanded = false});
 }

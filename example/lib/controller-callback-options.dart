@@ -23,6 +23,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
     return Container(
       padding: EdgeInsets.all(32),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -111,24 +112,9 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
             collapsedContent: _contentCollapsed(),
           ),
           bodyContent: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.start,
+            child: ListView(
+              padding: EdgeInsets.all(16),
               children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    'PanelController can be used to control the panel. \nDifferent callbacks are also there, see console while you play with the panel',
-                    style: Theme.of(context).textTheme.subhead,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    'To use all these features, first set enabled:false in BackdropConfig',
-                    style: Theme.of(context).textTheme.subhead,
-                  ),
-                ),
                 Wrap(
                   runSpacing: 4,
                   spacing: 4,
@@ -137,7 +123,10 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                     RaisedButton(
                       child: Text("Open panel"),
                       onPressed: () {
-                        pc.collapse(); // open panel in Collapsed mode
+                        pc.collapse().then((_) {
+                          print('panel is collapsed now');
+                        }); // open panel in Collapsed mode
+                        // majority of PanelController methods return Future !!!
                       },
                     ),
                     RaisedButton(
@@ -165,8 +154,12 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         pc.setAnimatedPanelPosition(0.75); // set with animation
                       },
                     ),
-                    RaisedButton(
-                      child: Text("Toggle snappable"),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: snap ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Toggle snappable"),
                       onPressed: () {
                         setState(() {
                           snap =
@@ -174,16 +167,24 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton(
-                      child: Text("Toggle backdrop"),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: backdrop ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Toggle backdrop"),
                       onPressed: () {
                         setState(() {
                           backdrop = !backdrop;
                         });
                       },
                     ),
-                    RaisedButton(
-                      child: Text("Toggle draggable"),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: draggable ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Toggle draggable"),
                       onPressed: () {
                         setState(() {
                           draggable =
@@ -191,8 +192,12 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton(
-                      child: Text("Toggle drag from body"),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: dragBody ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Toggle drag from body"),
                       onPressed: () {
                         setState(() {
                           dragBody =
@@ -202,12 +207,33 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                     ),
                   ],
                 ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'PanelController can be used to control the panel. \nDifferent callbacks are also there, see console while you play with the panel',
+                    style: Theme.of(context).textTheme.subhead,
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Text(
+                    'To use all these features, first disable backdrop',
+                    style: Theme.of(context).textTheme.subhead,
+                  ),
+                ),
               ],
             ),
           ),
         ),
         size: PanelSize(
-            closedHeight: 0, collapsedHeight: 200, expandedHeight: 400),
+          closedHeight: 0,
+          collapsedHeight: 0.5, // 50% of screen
+          expandedHeight: 400, // 400 pixels
+        ),
+        autoSizing: PanelAutoSizing(
+          autoSizeCollapsed: true,
+          autoSizeExpanded: false, // keep 400 pixels only
+        ),
         onPanelSlide: (amount) {
           // DO SOMETHING HERE...
         },

@@ -24,8 +24,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
 
-  sliding_panel:
-    path: ../
+  sliding_panel: ^0.2.0
 
 dev_dependencies:
   flutter_test:

@@ -1,8 +1,8 @@
-import 'package:example/result.dart';
 import 'package:flutter/material.dart';
 
 import 'controller-callback-options.dart';
 import 'result.dart';
+import 'sizing.dart';
 import 'two-state.dart';
 
 void main() => runApp(MyApp());
@@ -64,6 +64,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ResultExample()),
+                );
+              },
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: RaisedButton(
+              child: Text("Panel Height changing (Beta)"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => SizingExample()),
                 );
               },
             ),

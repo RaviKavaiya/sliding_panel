@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:sliding_panel/sliding_panel.dart';
 
 class ResultExample extends StatefulWidget {
@@ -16,24 +15,17 @@ class _ResultExampleState extends State<ResultExample> {
     super.initState();
 
     pc = PanelController();
-
-    SchedulerBinding.instance.addPostFrameCallback((x) {
-      _updateSize(); // This is called to make panel size according to content
-    });
   }
-
-  GlobalKey keyContent = GlobalKey();
-
-  double _height = 200;
 
   String selectedFood = "Your selected option will appear here...";
 
   Widget _content() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Container(
-          key: keyContent,
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Container(
                 margin: EdgeInsets.only(top: 16.0),
@@ -47,9 +39,10 @@ class _ResultExampleState extends State<ResultExample> {
                 height: 32,
               ),
               Material(
-                type: MaterialType.transparency,
+                type: MaterialType
+                    .transparency, // if you want to keep rounded borders as it is...
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   child: ListView(
                     shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
@@ -153,17 +146,10 @@ class _ResultExampleState extends State<ResultExample> {
           ),
           isTwoStatePanel:
               true, // sending results can work in normal panels also
-          size: PanelSize(closedHeight: 0, expandedHeight: _height),
+          size: PanelSize(closedHeight: 0, expandedHeight: 300),
+          autoSizing: PanelAutoSizing(autoSizeExpanded: true),
         ),
       ),
     );
-  }
-
-  _updateSize() {
-    final RenderBox renderBox = keyContent.currentContext.findRenderObject();
-
-    setState(() {
-      _height = renderBox.size.height + 16;
-    });
   }
 }
