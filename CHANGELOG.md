@@ -1,6 +1,6 @@
 ## [0.5.0] - October 06, 2019
 
-This package release introduces some API changes (majorly breaking changes) and a new underlying mechanism. Below are some of the changes. For complete list of changes and migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/flutter_sliding_panel/wiki/Migration-guide).
+This package release introduces some API changes (majorly breaking changes) and a new underlying mechanism. Below are some of the changes. For complete list of changes and migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide).
 
 - **New:** Now specify what happens when user presses back button, using `BackPressBehavior` and `PanelPoppingBehavior`.
 - **New:** Now you can specify the limit of user's dragging the panel, using `allowedDraggingTill` parameter.

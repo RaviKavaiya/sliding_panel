@@ -5,13 +5,13 @@ A Flutter slidable widget that provides an easy to use configuration. Just as yo
 
 <br>
 
-<img width="300px" alt="Demo" src="https://github.com/RaviKavaiya/flutter_sliding_panel/blob/master/demo/demo.gif"/>
+<img width="300px" alt="Demo" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/demo.gif"/>
 
 <br><br>
 
 Make choices | Customize it | Get full control
 --- | --- | ---
-<img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/flutter_sliding_panel/blob/master/demo/screen1.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/flutter_sliding_panel/blob/master/demo/screen2.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/flutter_sliding_panel/blob/master/demo/screen3.png"/>
+<img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen1.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen2.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen3.png"/>
 
 #### Easily put your content in the panel, customize it and then just use the panel for various purposes like, 
 - Showing some persistent content on bottom of the screen.
@@ -19,7 +19,7 @@ Make choices | Customize it | Get full control
 - Also use like `DraggableScrollableSheet()` and put scrollable content inside the panel.
 
 ## :point_right: How to use sliding_panel:
-Please visit the [**Wiki**](https://github.com/RaviKavaiya/flutter_sliding_panel/wiki) to see how you can get this working.
+Please visit the [**Wiki**](https://github.com/RaviKavaiya/sliding_panel/wiki) to see how you can get this working.
 
 <br>
 
@@ -29,5 +29,5 @@ This package was much *unstable* before. But now, it is a bit **more stable.** S
 <br>
 
 ### A note for `v0.2.0` and `v0.1.0` users :worried:
-This version contains a LOADS of breaking :boom: changes, which means that simply updating the package won't give you all the bells and whistles of new version. :pensive: For updating guide, please go to the [**Migration guide**](https://github.com/RaviKavaiya/flutter_sliding_panel/wiki/Migration-guide), and see the 'Migration Guide'.
+This version contains a LOADS of breaking :boom: changes, which means that simply updating the package won't give you all the bells and whistles of new version. :pensive: For updating guide, please go to the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide), and see the 'Migration Guide'.
 - After following this guide, you will enjoy new features.
