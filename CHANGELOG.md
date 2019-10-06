@@ -1,3 +1,7 @@
+## [0.5.0+2] - October 06, 2019
+
+A minor update, that fixes bug in README.md.
+
 ## [0.5.0+1] - October 06, 2019
 
 A minor update, that fixes bug in README.md.
