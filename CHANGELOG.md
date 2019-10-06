@@ -1,3 +1,7 @@
+## [0.5.0+1] - October 06, 2019
+
+A minor update, that fixes bug in README.md.
+
 ## [0.5.0] - October 06, 2019
 
 This package release introduces some API changes (majorly breaking changes) and a new underlying mechanism. Below are some of the changes. For complete list of changes and migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide).

@@ -31,3 +31,6 @@ This package was much *unstable* before. But now, it is a bit **more stable.** S
 ### A note for `v0.2.0` and `v0.1.0` users :worried:
 This version contains a LOADS of breaking :boom: changes, which means that simply updating the package won't give you all the bells and whistles of new version. :pensive: For updating guide, please go to the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide), and see the 'Migration Guide'.
 - After following this guide, you will enjoy new features.
+
+
+#### Please ignore the warning if you get: "This package doesn't depend on collection."
