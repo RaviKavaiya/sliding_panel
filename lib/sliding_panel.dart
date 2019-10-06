@@ -5,7 +5,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/scheduler.dart';
 
 part 'src/config.dart';
