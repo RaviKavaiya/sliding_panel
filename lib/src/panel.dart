@@ -2,19 +2,18 @@ part of sliding_panel;
 
 class _SlidingPanelState extends State<SlidingPanel>
     with TickerProviderStateMixin {
-  // Controller for closed-to-collapsed slide (and vice versa)
-  AnimationController _animCollapsed;
+  _PanelScrollController _scrollController;
+  _PanelMetadata _metadata;
 
-  // Controller for collapsed-to-expanded slide (and vice versa)
-  AnimationController _animExpanded;
+  PanelController _controller;
 
-  // Controller for closed-to-expanded slide (and vice versa)
-  AnimationController _animFull;
+  PanelState _oldState;
+  PanelState currentState;
 
-  double _closedHeight, _collapsedHeight, _expandedHeight;
-  Duration _duration;
-  bool _isTwoStatePanel;
-  bool _isHeightCalculated = false;
+  GlobalKey _keyHeader = GlobalKey();
+  bool _headerCalculated = false;
+  bool _toShowHeader = false;
+  double _calculatedHeaderHeight = 0.0;
 
   GlobalKey _keyCollapsed = GlobalKey();
   bool _collapsedCalculated = false;
@@ -22,279 +21,170 @@ class _SlidingPanelState extends State<SlidingPanel>
   GlobalKey _keyContent = GlobalKey();
   bool _contentCalculated = false;
 
-  GlobalKey _keyHeader = GlobalKey();
-  double calcHeaderHeight = 0.0;
-  bool _headerCalculated = false;
+  Size _screenSizeData;
+
+  Map<PanelDraggingDirection, double> _getAllowedDraggingTill(
+      Map<PanelDraggingDirection, double> allowedDraggingTill) {
+    if ((widget.isTwoStatePanel) || (!widget.snapPanel)) {
+      return const {PanelDraggingDirection.ALLOW: 0.0};
+    } else {
+      if ((allowedDraggingTill == null) || (allowedDraggingTill.length == 0)) {
+        return const {PanelDraggingDirection.ALLOW: 0.0};
+      } else {
+        if (allowedDraggingTill.containsKey(PanelDraggingDirection.UP)) {
+          if (allowedDraggingTill[PanelDraggingDirection.UP] >=
+              widget.size.expandedHeight) {
+            allowedDraggingTill.remove(PanelDraggingDirection.UP);
+          }
+        }
+        if (allowedDraggingTill.containsKey(PanelDraggingDirection.DOWN)) {
+          if (allowedDraggingTill[PanelDraggingDirection.DOWN] <=
+              widget.size.closedHeight) {
+            allowedDraggingTill.remove(PanelDraggingDirection.DOWN);
+          }
+        }
+        return allowedDraggingTill.length == 0
+            ? const {PanelDraggingDirection.ALLOW: 0.0}
+            : allowedDraggingTill;
+      }
+    }
+  }
 
   @override
   void initState() {
     super.initState();
 
-    _closedHeight = widget.size.closedHeight;
-    _collapsedHeight = widget.size.collapsedHeight;
-    _expandedHeight = widget.size.expandedHeight;
-    _duration = widget.duration;
-    _isTwoStatePanel = widget.isTwoStatePanel;
-
-    _animFull = AnimationController(
-      vsync: this,
-      duration: _duration,
-      lowerBound: 0.0,
-      upperBound: 1.0,
-      value: widget.initialState == InitialPanelState.expanded ? 1.0 : 0.0,
-    )..addListener(() {
-        setState(() {});
-        _animationListener(this, isCollapsedAnimation: false);
-      });
-
-    _animCollapsed = AnimationController(
-      vsync: this,
-      duration: _extractCollapsedDuration(this),
-      lowerBound: 0.0,
-      upperBound: 1.0,
-      value: widget.initialState == InitialPanelState.closed ? 0.0 : 1.0,
-    )..addListener(() {
-        setState(() {});
-        _animationListener(this, isCollapsedAnimation: true);
-      });
-
-    _animExpanded = AnimationController(
-      vsync: this,
-      duration: _extractExpandedDuration(this),
-      lowerBound: 1.0,
-      upperBound: 2.0,
-      value: widget.initialState == InitialPanelState.expanded ? 2.0 : 1.0,
-    )..addListener(() {
-        setState(() {});
-        _animationListener(this, isCollapsedAnimation: false);
-      });
-
-    widget.panelController?._control(
-      () => _closePanel(this),
-      () => _collapsePanel(this),
-      () => _expandPanel(this),
-      _setPanelPosition,
-      _setAnimatedPanelPosition,
-      () => _getCurrentPanelPosition(this),
-      () => _getCurrentPanelState(this),
-      _sendResult,
-      _popWithResult,
+    _metadata = _PanelMetadata(
+      closedHeight: widget.size.closedHeight,
+      collapsedHeight: widget.size.collapsedHeight,
+      expandedHeight: widget.size.expandedHeight,
+      isTwoStatePanel: widget.isTwoStatePanel,
+      snapPanel: widget.snapPanel,
+      isDraggable: widget.isDraggable,
+      snappingTriggerPercentage: widget.snappingTriggerPercentage,
+      initialPanelState: widget.initialState,
+      allowedDraggingTill: _getAllowedDraggingTill(widget.allowedDraggingTill),
+      whenSlided: _panelHeightChanged,
     );
 
-    SchedulerBinding.instance.addPostFrameCallback((x) {
-      _updatePanelSize();
+    _scrollController = _PanelScrollController(
+      metadata: _metadata,
+    );
+
+    _controller = PanelController().._control(this);
+    widget?.panelController?._control(this);
+
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _controller._checkAttached();
+      widget?.panelController?._checkAttached();
+
+      // this is needed here, otherwise the initial build will cause some glitch while calculating the auto panel size.
+      if (widget.autoSizing.headerSizeIsClosed ||
+          widget.autoSizing.autoSizeCollapsed ||
+          widget.autoSizing.autoSizeExpanded) {
+        _calculateHeights();
+      } else {
+        _calculateHeaderHeight();
+        _collapsedCalculated = true;
+        _contentCalculated = true;
+      }
+
+      _metadata
+          ._setInitialStateAgain(); // set initial state, initially... (again!)
+
+      // update durations again
+      _controller._updateDurations();
+      widget?.panelController?._updateDurations();
     });
   }
 
-  @override
-  void didUpdateWidget(SlidingPanel oldWidget) {
-    super.didUpdateWidget(oldWidget);
-
-    final _screenHeight = MediaQuery.of(context).size.height;
-
-    bool isUpdated = false;
-
-    if (widget.size.closedHeight != _closedHeight) {
-      _closedHeight = widget.size.closedHeight;
-      isUpdated = true;
-    }
-
-    if (widget.size.collapsedHeight != _collapsedHeight) {
-      double _temp = widget.size.collapsedHeight;
-
-      if (_temp > 0 && _temp <= 1.0) {
-        _temp = _temp * _screenHeight;
-      }
-
-      if ((_getCurrentPanelState(this) == PanelState.collapsed) &&
-          (!_isTwoStatePanel)) {
-        double newValue = ((min(_collapsedHeight, _temp)) /
-            ((max(_collapsedHeight, _temp) - _closedHeight) + _closedHeight));
-
-        bool isNowBigger = _collapsedHeight < _temp;
-
-        _collapsedHeight = _temp;
-
-        _animCollapsed.value = newValue;
-
-        if (isNowBigger) {
-          _collapsePanel(this);
-        } else {
-          _closePanel(this);
-        }
-      } else {
-        _collapsedHeight = _temp;
-      }
-      isUpdated = true;
-    }
-
-    if (widget.size.expandedHeight != _expandedHeight) {
-      double _temp = widget.size.expandedHeight;
-
-      if (_temp > 0 && _temp <= 1.0) {
-        _temp = _temp * _screenHeight;
-      }
-
-      if (_getCurrentPanelState(this) == PanelState.expanded) {
-        double newValue = (((min(_expandedHeight, _temp)) /
-                ((max(_expandedHeight, _temp) - _closedHeight) +
-                    _closedHeight)) +
-            1.0);
-
-        bool isNowBigger = _expandedHeight < _temp;
-
-        _expandedHeight = _temp;
-
-        if (widget.isTwoStatePanel) {
-          _isTwoStatePanel = widget.isTwoStatePanel;
-          _animFull.value = (newValue - 1.0);
-        } else {
-          _animExpanded.value = newValue;
-        }
-
-        if (isNowBigger) {
-          _expandPanel(this);
-        } else {
-          if (_isTwoStatePanel) {
-            _closePanel(this);
-          } else {
-            _collapsePanel(this);
-          }
-        }
-      } else {
-        _expandedHeight = _temp;
-      }
-      isUpdated = true;
-    }
-
-    if (widget.duration != _duration) {
-      _duration = widget.duration;
-      isUpdated = true;
-    }
-
-    // setting again, in case it is not done yet.
-    if (_closedHeight > 0 && _closedHeight <= 1.0) {
-      _closedHeight = _closedHeight * _screenHeight;
-    }
-
-    if (_collapsedHeight > 0 && _collapsedHeight <= 1.0) {
-      _collapsedHeight = _collapsedHeight * _screenHeight;
-    }
-
-    if (_expandedHeight > 0 && _expandedHeight <= 1.0) {
-      _expandedHeight = _expandedHeight * _screenHeight;
-    }
-
-    if (widget.isTwoStatePanel != _isTwoStatePanel) {
-      var currentState = _getCurrentPanelState(this);
-
-      if (currentState == PanelState.closed) {
-        _isTwoStatePanel = widget.isTwoStatePanel;
-        _animFull.value = 0.0;
-      } else {
-        _isTwoStatePanel = widget.isTwoStatePanel;
-        _animFull.value = 1.0;
-      }
-
-      isUpdated = true;
-    }
-
-    // If the panel's heights or duration are really changed, update the animation controller duration also.
-    if (isUpdated) {
-      if (_isTwoStatePanel) {
-        _animFull.duration = _duration;
-      } else {
-        _animCollapsed.duration = _extractCollapsedDuration(this);
-        _animExpanded.duration = _extractExpandedDuration(this);
-      }
-    }
-
-    _headerCalculated = false;
-    _collapsedCalculated = false;
-    _contentCalculated = false;
-
-    SchedulerBinding.instance.addPostFrameCallback((x) {
-      _updatePanelSize();
-    });
-  }
-
-  @override
-  void dispose() {
-    _animCollapsed?.dispose();
-    _animExpanded?.dispose();
-    _animFull?.dispose();
-    super.dispose();
-  }
-
-  void _updatePanelSize() {
-    final screenHeight = MediaQuery.of(context).size.height;
-
+  void _calculateHeaderHeight() {
     final RenderBox boxHeader =
         _keyHeader?.currentContext?.findRenderObject() ?? null;
 
+    // calculate header height
+    if ((boxHeader?.size?.height ?? null) != null) {
+      // header provided and size calculated.
+      // so, this height has to be added to all other heights.
+
+      final headerHeight = boxHeader.size.height;
+
+      setState(() {
+        _toShowHeader = true;
+
+        _calculatedHeaderHeight = headerHeight;
+        _headerCalculated = true;
+      });
+    } else {
+      // no header given or size can't be determined.
+      setState(() {
+        _toShowHeader = false;
+      });
+    }
+  }
+
+  void _calculateHeights() {
+    // take temporary variables.
+    double _headerHeightTemp = _calculatedHeaderHeight;
+
+    double _closedHeightTemp = _metadata.closedHeight;
+    bool _closedHeightChanged = false;
+
+    double _collapsedHeightTemp = _metadata.collapsedHeight;
+    bool _collapsedHeightChanged = false;
+
+    double _expandedHeightTemp = _metadata.expandedHeight;
+    bool _expandedHeightChanged = false;
+
+    // find all render boxes
     final RenderBox boxCollapsed =
         _keyCollapsed?.currentContext?.findRenderObject() ?? null;
 
     final RenderBox boxContent =
         _keyContent?.currentContext?.findRenderObject() ?? null;
 
-    bool toShowHeader;
-
-    if ((boxHeader?.size?.height ?? null) != null) {
-      // header provided and size calculated.
-      // so, this height has to be added to all other heights.
-
-      toShowHeader = true;
-
-      final headerHeight = boxHeader.size.height;
-
-      setState(() {
-        _headerCalculated = true;
-
-        calcHeaderHeight = headerHeight;
-
-        if (widget.autoSizing.headerSizeIsClosed) {
-          if (_closedHeight < headerHeight) {
-            _closedHeight = headerHeight;
-          }
-        }
-      });
-    } else {
-      // no header given or size can't be determined.
-      toShowHeader = false;
+    _calculateHeaderHeight();
+    if (_toShowHeader) {
+      _headerHeightTemp = _calculatedHeaderHeight;
     }
 
-    if ((!_isTwoStatePanel) && (widget.autoSizing.autoSizeCollapsed)) {
-      // two-state panels don't have collapsedWidget
+    if (widget.autoSizing.headerSizeIsClosed) {
+      if (_closedHeightTemp < _calculatedHeaderHeight) {
+        _closedHeightTemp = _calculatedHeaderHeight;
+        _closedHeightChanged = true;
+      }
+    }
+
+    // calculate collapsed widget height.
+    if ((!_metadata.isTwoStatePanel) && (widget.autoSizing.autoSizeCollapsed)) {
+      // not for two-state panels, as they don't have this widget.
 
       if ((boxCollapsed?.size?.height ?? null) != null) {
         // collapsedWidget provided and size calculated.
 
         final colHeight = boxCollapsed.size.height;
 
-        if (colHeight < screenHeight) {
+        if (colHeight < _screenSizeData.height) {
           // if it is less than screen's height.
           setState(() {
-            if (toShowHeader) {
+            if (_toShowHeader) {
               // add header height to collapsedHeight.
-              _collapsedHeight = colHeight + calcHeaderHeight;
-            } else {
-              _collapsedHeight = colHeight;
+              _collapsedHeightTemp = colHeight + _headerHeightTemp;
 
-              if (calcHeaderHeight > _collapsedHeight) {
-                // this should not happen, still set collapsed to closed height.
-                _collapsedHeight = calcHeaderHeight;
+              if (_headerHeightTemp > _collapsedHeightTemp) {
+                // this should not happen.
+                _collapsedHeightTemp = _headerHeightTemp;
               }
+            } else {
+              _collapsedHeightTemp = colHeight;
             }
+            _collapsedHeightChanged = true;
           });
         }
       }
     }
 
-    setState(() {
-      _collapsedCalculated = true;
-    });
-
+    // calculate panel height
     if (((boxContent?.size?.height ?? null) != null) &&
         (widget.autoSizing.autoSizeExpanded)) {
       // panelContent provided and size calculated.
@@ -302,85 +192,444 @@ class _SlidingPanelState extends State<SlidingPanel>
       final expHeight = boxContent.size.height;
 
       setState(() {
-        if (expHeight < _collapsedHeight) {
+        if (expHeight < _collapsedHeightTemp) {
           // collapsedHeight is more than expanded, so add it to expandedHeight.
+          // !!! this is not an ideal condition.
 
-          if (toShowHeader) {
+          if (_toShowHeader) {
             // set expanded in a manner that,
             // it should be less than screen height (otherwise, it should be of screen's height).
             // and maximum of (it's actual height + header height) and (collapsedHeight (which also includes header height))
 
-            _expandedHeight = min(screenHeight,
-                max(expHeight + calcHeaderHeight, _collapsedHeight));
+            _expandedHeightTemp = min(_screenSizeData.height,
+                max(expHeight + _headerHeightTemp, _collapsedHeightTemp));
           } else {
             // set expanded to collapsed.
-            _expandedHeight = _collapsedHeight;
+            _expandedHeightTemp = _collapsedHeightTemp;
           }
         } else {
-          if (toShowHeader) {
+          if (_toShowHeader) {
             // select minimum of screen height / boxHeight including header.
-            _expandedHeight = min(
-                expHeight + calcHeaderHeight, screenHeight + calcHeaderHeight);
+            _expandedHeightTemp = min(expHeight + _headerHeightTemp,
+                _screenSizeData.height + _headerHeightTemp);
           } else {
             // select minimum of screen height / boxHeight.
-            _expandedHeight = min(expHeight, screenHeight);
+            _expandedHeightTemp = min(expHeight, _screenSizeData.height);
           }
         }
+        _expandedHeightChanged = true;
       });
     }
 
     setState(() {
+      if (_closedHeightChanged) {
+        _metadata.closedHeight = _closedHeightTemp / _screenSizeData.height;
+      }
+
+      if (_collapsedHeightChanged) {
+        _metadata.collapsedHeight =
+            _collapsedHeightTemp / _screenSizeData.height;
+      }
+
+      if (_expandedHeightChanged) {
+        _metadata.expandedHeight = _expandedHeightTemp / _screenSizeData.height;
+      }
+
+      _collapsedCalculated = true;
       _contentCalculated = true;
     });
   }
 
+  void _panelHeightChanged() {
+    setState(() {});
+
+    widget?.onPanelSlide?.call(_metadata.currentHeight);
+
+    if (widget.onPanelStateChanged != null) {
+      currentState = _controller.currentState;
+
+      if (currentState != _oldState) {
+        _oldState = currentState;
+        widget.onPanelStateChanged(currentState);
+      }
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    if (!_isHeightCalculated) {
-      _isHeightCalculated = true;
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-      final _screenHeight = MediaQuery.of(context).size.height;
-      bool isUpdated = false;
+    if (_screenSizeData == null) {
+      _screenSizeData = MediaQuery.of(context).size;
+    } else {
+      if (MediaQuery.of(context).size != _screenSizeData) {
+        // resolution changed
 
-      if (_closedHeight > 0 && _closedHeight <= 1.0) {
-        _closedHeight = _closedHeight * _screenHeight;
-        isUpdated = true;
+        _screenSizeData = MediaQuery.of(context).size;
+
+        if (widget.autoSizing.headerSizeIsClosed ||
+            widget.autoSizing.autoSizeCollapsed ||
+            widget.autoSizing.autoSizeExpanded) {
+          _headerCalculated = false;
+          _collapsedCalculated = false;
+          _contentCalculated = false;
+          SchedulerBinding.instance.addPostFrameCallback((x) {
+            _calculateHeights();
+
+            // update durations again
+            _controller._updateDurations();
+            widget?.panelController?._updateDurations();
+          });
+        } else {
+          SchedulerBinding.instance.addPostFrameCallback((x) {
+            _calculateHeaderHeight();
+            _collapsedCalculated = true;
+            _contentCalculated = true;
+
+            // update durations again
+            _controller._updateDurations();
+            widget?.panelController?._updateDurations();
+          });
+        }
       }
-      if (_collapsedHeight > 0 && _collapsedHeight <= 1.0) {
-        _collapsedHeight = _collapsedHeight * _screenHeight;
-        isUpdated = true;
+    }
+  }
+
+  @override
+  void didUpdateWidget(SlidingPanel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.snapPanel != widget.snapPanel) {
+      _metadata.snapPanel = widget.snapPanel;
+    }
+
+    if (oldWidget.isDraggable != widget.isDraggable) {
+      _metadata.isDraggable = widget.isDraggable;
+    }
+
+    if (oldWidget.snappingTriggerPercentage !=
+        widget.snappingTriggerPercentage) {
+      _metadata.snappingTriggerPercentage = widget.snappingTriggerPercentage;
+    }
+
+    if (oldWidget.duration != widget.duration) {
+      _controller._updateDurations();
+      widget?.panelController?._updateDurations();
+    }
+
+    if (oldWidget.isTwoStatePanel != widget.isTwoStatePanel) {
+      if ((widget.isTwoStatePanel) && (_metadata.isCollapsed)) {
+        _controller.expand();
       }
-      if (_expandedHeight > 0 && _expandedHeight <= 1.0) {
-        _expandedHeight = _expandedHeight * _screenHeight;
-        isUpdated = true;
+      _metadata.isTwoStatePanel = widget.isTwoStatePanel;
+    }
+
+    if ((!widget.autoSizing.headerSizeIsClosed) &&
+        (!widget.autoSizing.autoSizeCollapsed) &&
+        (!widget.autoSizing.autoSizeExpanded)) {
+      // no auto sizing is applied
+      if (oldWidget.size.closedHeight != widget.size.closedHeight) {
+        if (_metadata.currentHeight < widget.size.closedHeight) {
+          // if current height of panel is less than new height
+          // animate then set
+
+          _controller
+              .setAnimatedPanelPosition(widget.size.closedHeight)
+              .then((_) {
+            _metadata.closedHeight = widget.size.closedHeight;
+          });
+        } else if ((_metadata.currentHeight > widget.size.closedHeight) &&
+            (_metadata.isClosed)) {
+          // if current height of panel is more than new height and panel is closed
+          // set then animate
+
+          _metadata.closedHeight = widget.size.closedHeight;
+          _controller.setAnimatedPanelPosition(widget.size.closedHeight);
+        } else {
+          // just close the panel and set new value
+          // set then animate
+
+          _metadata.closedHeight = widget.size.closedHeight;
+          if ((!_metadata.isExpanded) && (!_metadata.isCollapsed)) {
+            // if panel is neither collapsed nor expanded
+            _controller.setAnimatedPanelPosition(widget.size.closedHeight);
+          }
+        }
       }
 
-      if (isUpdated) {
-        _animFull.duration = _duration;
-        _animCollapsed.duration = _extractCollapsedDuration(this);
-        _animExpanded.duration = _extractExpandedDuration(this);
+      if (oldWidget.size.collapsedHeight != widget.size.collapsedHeight) {
+        if ((_metadata.currentHeight < widget.size.collapsedHeight) &&
+            (!_metadata.isClosed)) {
+          // if current height of panel is less than new height and panel is not closed
+          // animate then set
+
+          _controller
+              .setAnimatedPanelPosition(widget.size.collapsedHeight)
+              .then((_) {
+            _metadata.collapsedHeight = widget.size.collapsedHeight;
+          });
+        } else if ((_metadata.currentHeight > widget.size.collapsedHeight) &&
+            (_metadata.isCollapsed)) {
+          // if current height of panel is more than new height and panel is collapsed
+          // set then animate
+
+          _metadata.collapsedHeight = widget.size.collapsedHeight;
+          _controller.setAnimatedPanelPosition(widget.size.collapsedHeight);
+        } else {
+          // set new value
+          _metadata.collapsedHeight = widget.size.collapsedHeight;
+          if ((!_metadata.isExpanded) && (!_metadata.isClosed)) {
+            // if panel is neither closed nor expanded
+            _controller.setAnimatedPanelPosition(widget.size.collapsedHeight);
+          }
+        }
+      }
+
+      if (oldWidget.size.expandedHeight != widget.size.expandedHeight) {
+        if ((_metadata.currentHeight < widget.size.expandedHeight) &&
+            _metadata.isExpanded) {
+          // if current height of panel is less than new height and panel is expanded
+          // set then animate
+
+          _metadata.expandedHeight = widget.size.expandedHeight;
+          _controller.setAnimatedPanelPosition(widget.size.expandedHeight);
+        } else if (_metadata.currentHeight > widget.size.expandedHeight) {
+          // if current height of panel is more than new height
+          // animate then set
+
+          _controller
+              .setAnimatedPanelPosition(widget.size.expandedHeight)
+              .then((_) {
+            _metadata.expandedHeight = widget.size.expandedHeight;
+          });
+        } else {
+          // set new value
+          _metadata.expandedHeight = widget.size.expandedHeight;
+          if ((!_metadata.isCollapsed) && (!_metadata.isClosed)) {
+            // if panel is neither closed nor collapsed
+            _controller.setAnimatedPanelPosition(widget.size.expandedHeight);
+          }
+        }
       }
     }
 
+    Map<PanelDraggingDirection, double> allowedDraggingTill =
+        _getAllowedDraggingTill(widget.allowedDraggingTill);
+
+    if (!(MapEquality()
+        .equals(oldWidget.allowedDraggingTill, allowedDraggingTill))) {
+      _metadata.allowedDraggingTill = allowedDraggingTill;
+    }
+
+    // when something changes, calculate auto panel size
+    SchedulerBinding.instance.addPostFrameCallback((x) {
+      if (widget.autoSizing.headerSizeIsClosed ||
+          widget.autoSizing.autoSizeCollapsed ||
+          widget.autoSizing.autoSizeExpanded) {
+        _headerCalculated = false;
+        _collapsedCalculated = false;
+        _contentCalculated = false;
+        _calculateHeights();
+
+        // update durations again
+        _controller._updateDurations();
+        widget?.panelController?._updateDurations();
+      } else {
+        _calculateHeaderHeight();
+        _collapsedCalculated = true;
+        _contentCalculated = true;
+
+        // update durations again
+        _controller._updateDurations();
+        widget?.panelController?._updateDurations();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController?.dispose();
+    super.dispose();
+  }
+
+  Widget _headerAndPanel() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        // header
+        widget.content.headerWidget.headerContent != null
+            ? Offstage(
+                offstage: (!_headerCalculated),
+                child: GestureDetector(
+                  onVerticalDragUpdate: (details) => _dragPanel(
+                    _metadata,
+                    delta: details.primaryDelta,
+                    shouldListScroll: false,
+                    isGesture: true,
+                    dragFromBody: widget.backdropConfig.dragFromBody,
+                    scrollContentSuper: () {},
+                  ),
+                  onVerticalDragEnd: (details) =>
+                      _onPanelDragEnd(this, -details.primaryVelocity),
+                  onTap: () => widget.content?.headerWidget?.onTap?.call(),
+                  child: Container(
+                    decoration: widget.content.headerWidget.decoration != null
+                        ? BoxDecoration(
+                            border:
+                                widget.content.headerWidget.decoration.border,
+                            borderRadius: widget
+                                .content.headerWidget.decoration.borderRadius,
+                            boxShadow: widget
+                                .content.headerWidget.decoration.boxShadows,
+                            color: widget.content.headerWidget.decoration
+                                .backgroundColor,
+                          )
+                        : null,
+                    child: Container(
+                      height: widget.autoSizing.headerSizeIsClosed
+                          ? _calculatedHeaderHeight
+                          : min(_metadata.currentHeight * _metadata.totalHeight,
+                              _calculatedHeaderHeight),
+                      width: _screenSizeData.width -
+                          (widget.content.headerWidget.decoration.margin == null
+                              ? 0
+                              : widget.content.headerWidget.decoration.margin
+                                  .horizontal) -
+                          (widget.content.headerWidget.decoration.padding ==
+                                  null
+                              ? 0
+                              : widget.content.headerWidget.decoration.padding
+                                  .horizontal),
+                      child: widget.content.headerWidget.headerContent,
+                    ),
+                  ),
+                ),
+              )
+            : Container(),
+
+        // panel
+        Expanded(
+          child: Stack(
+            children: <Widget>[
+              // panelContent
+              _contentCalculated
+                  ? SizedBox.expand(
+                      child: Container(
+                        child: Opacity(
+                          opacity: _getPanelOpacity(this),
+                          child: widget.content
+                              .panelContent(context, _scrollController),
+                        ),
+                      ),
+                    )
+                  : Container(),
+
+              // collapsedContent
+              _metadata.isTwoStatePanel
+                  ? Container()
+                  : Positioned(
+                      top: 0.0,
+                      width: _screenSizeData.width -
+                          (widget.decoration.margin == null
+                              ? 0
+                              : widget.decoration.margin.horizontal) -
+                          (widget.decoration.padding == null
+                              ? 0
+                              : widget.decoration.padding.horizontal),
+                      child: Container(
+                        child: _collapsedCalculated
+                            ? GestureDetector(
+                                onVerticalDragUpdate: (details) => _dragPanel(
+                                  _metadata,
+                                  delta: details.primaryDelta,
+                                  shouldListScroll: false,
+                                  isGesture: true,
+                                  dragFromBody:
+                                      widget.backdropConfig.dragFromBody,
+                                  scrollContentSuper: () {},
+                                ),
+                                onVerticalDragEnd: (details) => _onPanelDragEnd(
+                                    this, -details.primaryVelocity),
+                                child: Container(
+                                  height: widget.content.collapsedWidget
+                                          .hideInExpandedOnly
+                                      ? _metadata.collapsedHeight *
+                                          _screenSizeData.height
+                                      : _metadata.closedHeight *
+                                          _screenSizeData.height,
+                                  child: Opacity(
+                                    opacity: _getCollapsedOpacity(this),
+                                    child: IgnorePointer(
+                                      ignoring: widget.content.collapsedWidget
+                                              .hideInExpandedOnly
+                                          ? _metadata.isExpanded
+                                          : _metadata.isCollapsed,
+                                      child: widget.content.collapsedWidget
+                                              .collapsedContent ??
+                                          Container(),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : Container(),
+                      ),
+                    ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _body() {
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
+        // for calculating the size.
+
+        widget.content.headerWidget.headerContent == null
+            ? Container()
+            : Offstage(
+                child: Container(
+                  key: _keyHeader,
+                  decoration: widget.content.headerWidget.decoration != null
+                      ? BoxDecoration(
+                          border: widget.content.headerWidget.decoration.border,
+                          borderRadius: widget
+                              .content.headerWidget.decoration.borderRadius,
+                          boxShadow:
+                              widget.content.headerWidget.decoration.boxShadows,
+                          color: widget
+                              .content.headerWidget.decoration.backgroundColor,
+                        )
+                      : null,
+                  child: Container(
+                    child: widget.content.headerWidget.headerContent,
+                  ),
+                ),
+              ),
+
         _contentCalculated
             ? Container()
             : Offstage(
                 child: Container(
                     key: _keyContent,
-                    child: widget.content?.panelContent ?? Container()),
+                    child: widget.content
+                            .panelContent(context, _scrollController) ??
+                        Container()),
               ),
 
-        ((widget.content?.collapsedWidget?.collapsedContent ?? null) == null)
+        (((widget.content?.collapsedWidget?.collapsedContent ?? null) ==
+                    null) ||
+                (_metadata.isTwoStatePanel))
             ? Container()
             : (_collapsedCalculated)
                 ? Container()
                 : Offstage(
                     child: Container(
-                        key: _keyCollapsed,
-                        child: widget.content.collapsedWidget.collapsedContent),
+                      key: _keyCollapsed,
+                      child: widget.content.collapsedWidget.collapsedContent,
+                    ),
                   ),
 
         // the body part
@@ -393,20 +642,22 @@ class _SlidingPanelState extends State<SlidingPanel>
         // the backdrop shadow
         widget.backdropConfig.enabled
             ? GestureDetector(
-                onVerticalDragUpdate:
-                    (widget.isDraggable && widget.backdropConfig.dragFromBody)
-                        ? (details) => _onPanelDrag(this, details)
-                        : null,
-                onVerticalDragEnd:
-                    (widget.isDraggable && widget.backdropConfig.dragFromBody)
-                        ? (details) => _onPanelDragEnd(this, details)
-                        : null,
+                onVerticalDragUpdate: (details) => _dragPanel(
+                  _metadata,
+                  delta: details.primaryDelta,
+                  shouldListScroll: false,
+                  isGesture: true,
+                  dragFromBody: widget.backdropConfig.dragFromBody,
+                  scrollContentSuper: () {},
+                ),
+                onVerticalDragEnd: (details) =>
+                    _onPanelDragEnd(this, -details.primaryVelocity),
                 onTap: () => _handleBackdropTap(this),
                 child: Opacity(
                   opacity: _getBackdropOpacityAmount(this),
                   child: Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
+                    height: _screenSizeData.height,
+                    width: _screenSizeData.width,
                     // setting color null enables Gesture recognition when collapsed / closed
                     color: _getBackdropColor(this),
                   ),
@@ -415,200 +666,36 @@ class _SlidingPanelState extends State<SlidingPanel>
             : Container(),
 
         // the panel content
-        GestureDetector(
-          onVerticalDragUpdate: widget.isDraggable
-              ? (details) => _onPanelDrag(this, details)
+        Container(
+          padding: widget.decoration.padding,
+          margin: widget.decoration.margin,
+          height: _metadata.currentHeight * _screenSizeData.height,
+          decoration: widget.renderPanelBackground
+              ? BoxDecoration(
+                  border: widget.decoration.border,
+                  borderRadius: widget.decoration.borderRadius,
+                  boxShadow: widget.decoration.boxShadows,
+                  color: widget.decoration.backgroundColor,
+                )
               : null,
-          onVerticalDragEnd: widget.isDraggable
-              ? (details) => _onPanelDragEnd(this, details)
-              : null,
-          child: Container(
-            height: _isTwoStatePanel
-                ? _getTwoStateHeight(this)
-                : _animExpanded.value > 1.0
-                    ? _getExpandedCurrentHeight(this)
-                    : _getCollapsedCurrentHeight(this),
-            padding: widget.decoration.padding,
-            margin: widget.decoration.margin,
-            decoration: widget.renderPanelBackground
-                ? BoxDecoration(
-                    border: widget.decoration.border,
-                    borderRadius: widget.decoration.borderRadius,
-                    boxShadow: widget.decoration.boxShadows,
-                    color: widget.decoration.backgroundColor,
-                  )
-                : null,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                // header widget
-                widget.content.headerContent != null
-                    ? Offstage(
-                        offstage: (!_headerCalculated),
-                        child: Container(
-                          key: _keyHeader,
-                          width: MediaQuery.of(context).size.width -
-                              (widget.decoration.margin == null
-                                  ? 0
-                                  : widget.decoration.margin.horizontal) -
-                              (widget.decoration.padding == null
-                                  ? 0
-                                  : widget.decoration.padding.horizontal),
-                          child: _headerCalculated
-                              ? Container(
-                                  height: widget.autoSizing.headerSizeIsClosed
-                                      ? _closedHeight
-                                      : _isTwoStatePanel
-                                          ? calcHeaderHeight * _animFull.value
-                                          : calcHeaderHeight *
-                                              _animCollapsed.value,
-                                  child: widget.content.headerContent,
-                                )
-                              : Container(
-                                  child: widget.content.headerContent,
-                                ),
-                        ),
-                      )
-                    : Container(),
-                Expanded(
-                  child: Stack(
-                    children: <Widget>[
-                      // expanded panel
-                      Positioned(
-                        width: MediaQuery.of(context).size.width -
-                            (widget.decoration.margin == null
-                                ? 0
-                                : widget.decoration.margin.horizontal) -
-                            (widget.decoration.padding == null
-                                ? 0
-                                : widget.decoration.padding.horizontal),
-                        child: _contentCalculated
-                            ? Container(
-                                height: _isTwoStatePanel
-                                    ? _animFull.value > 0.0
-                                        ? _expandedHeight
-                                        : _closedHeight
-                                    : _animExpanded.value > 1.0
-                                        ? _expandedHeight
-                                        : _collapsedHeight,
-                                child: Opacity(
-                                  opacity: (_isTwoStatePanel ||
-                                          (widget.content.collapsedWidget
-                                                  .collapsedContent ==
-                                              null))
-                                      ? 1.0
-                                      : widget.content.collapsedWidget
-                                              .hideInExpandedOnly
-                                          ? (_animExpanded.value - 1.0)
-                                          : (_animCollapsed.value),
-                                  child: widget.content.panelContent,
-                                ),
-                              )
-                            : Container(),
-                      ),
-
-                      // collapsed panel
-                      _isTwoStatePanel
-                          ? Container()
-                          : Positioned(
-                              top: 0.0,
-                              width: MediaQuery.of(context).size.width -
-                                  (widget.decoration.margin == null
-                                      ? 0
-                                      : widget.decoration.margin.horizontal) -
-                                  (widget.decoration.padding == null
-                                      ? 0
-                                      : widget.decoration.padding.horizontal),
-                              child: _collapsedCalculated
-                                  ? Container(
-                                      height: widget.content.collapsedWidget
-                                              .hideInExpandedOnly
-                                          ? _collapsedHeight
-                                          : _closedHeight,
-                                      child: Opacity(
-                                        opacity: widget.content.collapsedWidget
-                                                .hideInExpandedOnly
-                                            ? (1.0 -
-                                                (_animExpanded.value - 1.0))
-                                            : (1.0 - _animCollapsed.value),
-                                        child: IgnorePointer(
-                                          ignoring: widget
-                                                  .content
-                                                  .collapsedWidget
-                                                  .hideInExpandedOnly
-                                              ? _animExpanded.value == 2.0
-                                              : _animCollapsed.value == 1.0,
-                                          child: widget.content.collapsedWidget
-                                                  .collapsedContent ??
-                                              Container(),
-                                        ),
-                                      ),
-                                    )
-                                  : Container(),
-                            ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          child: _headerAndPanel(),
         ),
       ],
     );
   }
 
-  void _setPanelPosition(double value) {
-    if (_isTwoStatePanel) {
-      // Two state panels have value between 0.0 and 1.0 only
-      if (value >= 0.0 && value <= 1.0) {
-        _animFull.value = value;
-      }
-    } else {
-      if (value >= 0.0 && value <= 2.0) {
-        if (value <= 1.0) {
-          _animCollapsed.value = value;
-          if (_animExpanded.value != 1.0) _animExpanded.value = 1.0;
-        } else {
-          if (_animCollapsed.value != 1.0) _animCollapsed.value = 1.0;
-          _animExpanded.value = value;
-        }
-      }
-    }
-  }
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () => _decidePop(this),
+      child: LayoutBuilder(
+        builder: (context, BoxConstraints constraints) {
+          _metadata.totalHeight =
+              _metadata.expandedHeight * constraints.biggest.height;
 
-  Future<Null> _setAnimatedPanelPosition(double value) async {
-    if (_isTwoStatePanel) {
-      // Two state panels have value between 0.0 and 1.0 only
-      if (value >= 0.0 && value <= 1.0) {
-        await _animFull.animateTo(value, curve: widget.curve);
-      }
-    } else {
-      if (value >= 0.0 && value <= 2.0) {
-        if (value <= 1.0) {
-          if (_animExpanded.value != 1.0) {
-            await _animExpanded.animateTo(1.0, curve: Curves.linear);
-            await _animCollapsed.animateTo(value, curve: Curves.linear);
-          } else
-            await _animCollapsed.animateTo(value, curve: widget.curve);
-        } else {
-          if (_animCollapsed.value != 1.0) {
-            await _animCollapsed.animateTo(1.0, curve: Curves.linear);
-            await _animExpanded.animateTo(value, curve: Curves.linear);
-          } else
-            await _animExpanded.animateTo(value, curve: widget.curve);
-        }
-      }
-    }
-  }
-
-  void _sendResult({dynamic result}) {
-    SlidingPanelResult(result: result).dispatch(context);
-  }
-
-  Future<Null> _popWithResult({dynamic result}) async {
-    if (result != null) {
-      await _closePanel(this);
-      _sendResult(result: result);
-    }
+          return _body();
+        },
+      ),
+    );
   }
 }

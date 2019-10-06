@@ -17,13 +17,12 @@ class _SizingExampleState extends State<SizingExample> {
     pc = PanelController();
   }
 
-  double _closed = 0.0,
-      _collapsed = 0.15,
-      _expanded = 0.5; // these can be in pixels also...
+  double _closed = 0.15, _collapsed = 0.40, _expanded = 0.70;
 
-  Widget _content() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+  Widget _content(ScrollController scrollController) {
+    return ListView(
+      shrinkWrap: true,
+      controller: scrollController,
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.all(16.0),
@@ -46,13 +45,14 @@ class _SizingExampleState extends State<SizingExample> {
         panelController: pc,
         parallaxSlideAmount: 0.0,
         content: PanelContent(
-          panelContent: _content(),
-          headerContent: Container(
-            color: Colors.grey[100],
-            child: Center(
+          panelContent: (_, scrollController) {
+            return _content(scrollController);
+          },
+          headerWidget: PanelHeaderWidget(
+            headerContent: FractionallySizedBox(
+              widthFactor: 0.1,
               child: Container(
                 margin: EdgeInsets.symmetric(vertical: 16.0),
-                width: 36,
                 height: 6,
                 decoration: BoxDecoration(
                   color: Colors.grey[700],
@@ -62,39 +62,90 @@ class _SizingExampleState extends State<SizingExample> {
                 ),
               ),
             ),
+            decoration: PanelDecoration(
+              backgroundColor: Colors.grey[100],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(4),
+                topRight: Radius.circular(4),
+              ),
+            ),
           ),
           bodyContent: Center(
             child: ListView(
               children: <Widget>[
-                RaisedButton(
-                  child: Text("Change collapsed height"),
-                  onPressed: () {
-                    setState(() {
-                      _collapsed = 0.3;
-                    });
-                  },
-                ),
-                RaisedButton(
-                  child: Text("Change expanded height"),
-                  onPressed: () {
-                    setState(() {
-                      _expanded = 0.7;
-                    });
-                  },
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    'You can change the panel\'s height runtime. Panel will animate automatically to that position.',
-                    style: Theme.of(context).textTheme.subhead,
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Text(
-                    'This feature is just a preview feature and may be REMOVED in future releases. \nSo, make sure to test its effects thoroughly before moving forward.',
-                    style: Theme.of(context).textTheme.subhead,
-                  ),
+                Wrap(
+                  runSpacing: 4,
+                  spacing: 4,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    RaisedButton(
+                      child: Text("Change expanded height"),
+                      onPressed: () {
+                        setState(() {
+                          if (_expanded == 0.70)
+                            _expanded = 0.85;
+                          else
+                            _expanded = 0.70;
+                        });
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Change collapsed height"),
+                      onPressed: () {
+                        setState(() {
+                          if (_collapsed == 0.40)
+                            _collapsed = 0.60;
+                          else
+                            _collapsed = 0.40;
+                        });
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Change closed height"),
+                      onPressed: () {
+                        setState(() {
+                          if (_closed == 0.15)
+                            _closed = 0.30;
+                          else
+                            _closed = 0.15;
+                        });
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Get PanelSizeData"),
+                      onPressed: () {
+                        print(pc.sizeData);
+                      },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'You can change the panel\'s height runtime. Panel will animate automatically to that position.',
+                        style: Theme.of(context).textTheme.subhead,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'If you want to achieve such functionality, (its rarely needed) you need to turn off PanelAutoSizing.',
+                        style: Theme.of(context).textTheme.subhead,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'For best results (viewing animation), keep the panel in same position. (e.g., if you are changing \'collapsed\Height\', you should keep the panel in \'collapsed\' mode. (This is not compulsory)).',
+                        style: Theme.of(context).textTheme.subhead,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Checkout the PanelSizeData while you change these values, it gets updated.',
+                        style: Theme.of(context).textTheme.subhead,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -104,7 +155,8 @@ class _SizingExampleState extends State<SizingExample> {
             closedHeight: _closed,
             collapsedHeight: _collapsed,
             expandedHeight: _expanded),
-        autoSizing: PanelAutoSizing(headerSizeIsClosed: true),
+        snapPanel: true,
+        initialState: InitialPanelState.collapsed,
       ),
     );
   }

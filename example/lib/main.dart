@@ -1,9 +1,8 @@
+import 'package:example/controller-callback-options.dart';
+import 'package:example/separate.dart';
+import 'package:example/sizing.dart';
+import 'package:example/two-state.dart';
 import 'package:flutter/material.dart';
-
-import 'controller-callback-options.dart';
-import 'result.dart';
-import 'sizing.dart';
-import 'two-state.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,58 +26,49 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter SlidingPanel'),
+        title: Text('SlidingPanel Examples'),
       ),
       body: ListView(
         children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RaisedButton(
-              child: Text("Two state panel"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => TwoStateExample()),
-                );
-              },
-            ),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => TwoStateExample()),
+              );
+            },
+            title: Text('Two state panel with sending result'),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RaisedButton(
-              child:
-                  Text("Use of PanelController, Callbacks and customization"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CustomizeDemo()),
-                );
-              },
-            ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SizingExample()),
+              );
+            },
+            title: Text('Changing panel\'s height runtime'),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RaisedButton(
-              child: Text("PopWithResult and SendResult"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ResultExample()),
-                );
-              },
-            ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SeparateContentExample()),
+              );
+            },
+            title: Text('Panel without bodyContent'),
           ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RaisedButton(
-              child: Text("Panel Height changing (Beta)"),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SizingExample()),
-                );
-              },
-            ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => CustomizeDemo()),
+              );
+            },
+            title: Text('Use of PanelController, Callbacks and customization'),
           ),
         ],
       ),

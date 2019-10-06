@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_panel/sliding_panel.dart';
 
@@ -37,6 +36,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -59,31 +59,33 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
     );
   }
 
-  Widget _content() {
-    return Column(
+  Widget _content(ScrollController scrollController) {
+    return ListView(
+      shrinkWrap: true,
+      controller: scrollController,
       children: <Widget>[
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: FlutterLogo(
-            size: 80,
+            size: 96,
           ),
         ),
         Container(
-          margin: EdgeInsets.all(16.0),
+          margin: EdgeInsets.all(24.0),
           child: Text(
-            'This is SlidingPanel',
+            'This is a SlidingPanel',
             style: Theme.of(context).textTheme.headline,
           ),
         ),
         Container(
-          margin: EdgeInsets.all(16.0),
+          margin: EdgeInsets.all(24.0),
           child: Text(
             'Swipe Up / Down to Expand and Collapse / Close the panel',
             style: Theme.of(context).textTheme.title,
           ),
         ),
         Container(
-          margin: EdgeInsets.all(16.0),
+          margin: EdgeInsets.all(24.0),
           child: Text(
             'Moreover, tap area outside the panel to collapse / close it!',
             style: Theme.of(context).textTheme.subhead,
@@ -107,7 +109,9 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
             shadowColor: Colors.blue,
             dragFromBody: dragBody),
         content: PanelContent(
-          panelContent: _content(),
+          panelContent: (_, scrollController) {
+            return _content(scrollController);
+          },
           collapsedWidget: PanelCollapsedWidget(
             collapsedContent: _contentCollapsed(),
           ),
@@ -124,7 +128,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                       child: Text("Open panel"),
                       onPressed: () {
                         pc.collapse().then((_) {
-                          print('panel is collapsed now');
+//                          print('panel is collapsed now');
                         }); // open panel in Collapsed mode
                         // majority of PanelController methods return Future !!!
                       },
@@ -132,26 +136,33 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                     RaisedButton(
                       child: Text("Get current state"),
                       onPressed: () {
-                        print(pc.getCurrentPanelState());
+                        print(pc.currentState);
                       },
                     ),
                     RaisedButton(
                       child: Text("Get current position"),
                       onPressed: () {
-                        print(pc
-                            .getCurrentPanelPosition()); // Position >= 0.0 and <= 2.0
+                        print(pc.currentPosition);
+                        // get position between closedHeight and expandedHeight
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Get 50% of panel's height"),
+                      onPressed: () {
+                        print(pc.getPercentToPanelPosition(0.5));
+                        // we give 50% as parameter, this wil return 50% of the panel's height, (gets updated when we use AutoSizing)
                       },
                     ),
                     RaisedButton(
                       child: Text("Set position"),
                       onPressed: () {
-                        pc.setPanelPosition(0.75); // just set position
+                        pc.setPanelPosition(0.3); // just set position
                       },
                     ),
                     RaisedButton(
                       child: Text("Set position with animation"),
                       onPressed: () {
-                        pc.setAnimatedPanelPosition(0.75); // set with animation
+                        pc.setAnimatedPanelPosition(0.3); // set with animation
                       },
                     ),
                     RaisedButton.icon(
@@ -228,23 +239,17 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         size: PanelSize(
           closedHeight: 0,
           collapsedHeight: 0.5, // 50% of screen
-          expandedHeight: 400, // 400 pixels
+          expandedHeight: 0.9, // 90% of screen
         ),
         autoSizing: PanelAutoSizing(
           autoSizeCollapsed: true,
-          autoSizeExpanded: false, // keep 400 pixels only
+          autoSizeExpanded: true,
         ),
         onPanelSlide: (amount) {
           // DO SOMETHING HERE...
         },
-        onPanelClosed: () {
-          print('Panel is closed.');
-        },
-        onPanelCollapsed: () {
-          print('Panel in Collapsed state.');
-        },
-        onPanelExpanded: () {
-          print('EXPANDED...');
+        onPanelStateChanged: (state) {
+//          print('panel in $state state.');
         },
         duration: Duration(milliseconds: 1000),
         parallaxSlideAmount: 0.0,
@@ -253,10 +258,11 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         decoration:
             PanelDecoration(backgroundColor: Colors.orange[200], boxShadows: [
           BoxShadow(
-              blurRadius: 8.0,
-              color: Colors.orange[400].withOpacity(0.75),
-              spreadRadius: 2,
-              offset: Offset(0, -3)),
+            blurRadius: 8.0,
+            color: Colors.orange[400].withOpacity(0.75),
+            spreadRadius: 2,
+            offset: Offset(0, -3),
+          ),
         ]),
       ),
     );

@@ -29,18 +29,3 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
---------------------------------------------------------------------------------
-
-sliding_up_panel
-
-This product uses some parts of sliding_up_panel package
-
-This product includes SOME parts of the software developed
-by Akshath Jain (https://akshathjain.com).
-
-Copyright (c) 2019, Akshath Jain
-All rights reserved.
-
-License for the above mentioned package (sliding_up_panel) can be found here:
-(https://github.com/akshathjain/sliding_up_panel/blob/master/LICENSE).

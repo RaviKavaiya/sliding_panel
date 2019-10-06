@@ -1,72 +1,81 @@
 part of sliding_panel;
 
+/// A controller that controls the [SlidingPanel] programmatically.
+///
+/// A controller can be attached to a single [SlidingPanel] only. Means, once attached, this controller can't be used to control other [SlidingPanel]s. So, keep one controller per [SlidingPanel].
 class PanelController {
-  static double _defaultCallback([double x]) {
-    print(
-        'Action Failed! Reason : This controller is not attached to any SlidingPanel.');
-    return 0.0;
+  _SlidingPanelState panel;
+
+  bool _controlling = false;
+
+  /// A flag that indicates whether this controller is actively controlling a [SlidingPanel].
+  ///
+  /// If it returs false, it indicates that you need to pass this controller as a parameter in [SlidingPanel.panelController].
+  bool get controlling => _controlling;
+
+  Duration _durationCollapsed;
+  Duration _durationExpanded;
+
+  double _diffHeight = 0.0;
+
+  void _updateDurations() {
+    _diffHeight = panel._scrollController.metadata.expandedHeight -
+        panel._scrollController.metadata.closedHeight;
+
+    double diffCollapsed = panel._scrollController.metadata.collapsedHeight -
+        panel._scrollController.metadata.closedHeight;
+
+    double diffExpanded = panel._scrollController.metadata.expandedHeight -
+        panel._scrollController.metadata.collapsedHeight;
+
+    _durationCollapsed = Duration(
+        milliseconds:
+            ((((diffCollapsed * panel.widget.duration.inMilliseconds) /
+                        _diffHeight)
+                    .floor()
+                    .toInt())
+                .abs()));
+
+    _durationExpanded = Duration(
+        milliseconds: ((((diffExpanded * panel.widget.duration.inMilliseconds) /
+                    _diffHeight)
+                .floor()
+                .toInt())
+            .abs()));
   }
 
-  static Future<Null> _defaultCallbackFuture([double x]) {
-    print(
-        'Action Failed! Reason : This controller is not attached to any SlidingPanel.');
-    return Future.value(null);
+  Duration _getDuration({double from, double to}) {
+    return Duration(
+        milliseconds: (((((to - from) * panel.widget.duration.inMilliseconds) /
+                    _diffHeight)
+                .floor()
+                .toInt())
+            .abs()));
   }
 
-  static void _defaultCallbackResult({dynamic result}) {
-    print(
-        'Action Failed! Reason : This controller is not attached to any SlidingPanel.');
+  void _control(_SlidingPanelState panel) {
+    if (!controlling) {
+      this.panel = panel;
+
+      _updateDurations();
+      _controlling = true;
+    } else {
+      print(
+          'Error! Reason : This PanelController is already attached to a different SlidingPanel and so can\'t control any other panel. Please create a new PanelController in order to control this panel.');
+    }
   }
 
-  Future<Null> Function() _closePanelCallback = _defaultCallbackFuture;
+  void _checkAttached() {
+    if (panel._scrollController._scrollPosition == null) {
+      _controlling = false;
+      print(
+          'Error! Reason : You have not attached the `PanelContent.scrollController`. Please attach the scrollController as it is necessary for the panel to work.');
+    }
+  }
 
-  Future<Null> Function() _collapsePanelCallback = _defaultCallbackFuture;
-
-  Future<Null> Function() _expandPanelCallback = _defaultCallbackFuture;
-
-  void Function(double value) _setPanelPositionCallback = _defaultCallback;
-
-  Future<Null> Function(double value) _setAnimatedPanelPositionCallback =
-      _defaultCallbackFuture;
-
-  double Function() _getCurrentPanelPositionCallback = _defaultCallback;
-
-  PanelState Function() _currentPanelStateCallback = () {
+  void _printError() {
     print(
-        'Action Failed! Reason : This controller is not attached to any SlidingPanel.');
-
-    return PanelState.closed;
-  };
-
-  void Function({dynamic result}) _sendResultCallback = _defaultCallbackResult;
-
-  Future<Null> Function({dynamic result}) _popWithResultCallback =
-      ({dynamic result}) {
-    print(
-        'Action Failed! Reason : This controller is not attached to any SlidingPanel.');
-    return;
-  };
-
-  void _control(
-    Future<Null> Function() _closePanelCallback,
-    Future<Null> Function() _collapsePanelCallback,
-    Future<Null> Function() _expandPanelCallback,
-    void Function(double value) _setPanelPositionCallback,
-    Future<Null> Function(double value) _setAnimatedPanelPositionCallback,
-    double Function() _getCurrentPanelPositionCallback,
-    PanelState Function() _currentPanelStateCallback,
-    void Function({dynamic result}) _sendResultCallback,
-    Future<Null> Function({dynamic result}) _popWithResultCallback,
-  ) {
-    this._closePanelCallback = _closePanelCallback;
-    this._collapsePanelCallback = _collapsePanelCallback;
-    this._expandPanelCallback = _expandPanelCallback;
-    this._setPanelPositionCallback = _setPanelPositionCallback;
-    this._setAnimatedPanelPositionCallback = _setAnimatedPanelPositionCallback;
-    this._getCurrentPanelPositionCallback = _getCurrentPanelPositionCallback;
-    this._currentPanelStateCallback = _currentPanelStateCallback;
-    this._sendResultCallback = _sendResultCallback;
-    this._popWithResultCallback = _popWithResultCallback;
+        'Error! Reason : This controller is not attached to any SlidingPanel.\nOr you have not attached the `PanelContent.scrollController`. Please attach the scrollController as it is necessary for the panel to work.');
   }
 
   /// Bring the panel to [PanelState.closed].
@@ -74,83 +83,194 @@ class PanelController {
   /// Returned future is completed when the panel is closed.
   ///
   /// (Animates to [PanelSize.closedHeight]).
-  Future<Null> close() async => _closePanelCallback();
+  Future<Null> close() async => controlling
+      ? _setPanelPosition(panel,
+          duration: currentState == PanelState.collapsed
+              ? _durationCollapsed
+              : currentState == PanelState.expanded
+                  ? panel.widget.duration
+                  : _getDuration(
+                      from: currentPosition,
+                      to: panel._scrollController._scrollPosition.metadata
+                          .closedHeight),
+          to: panel._scrollController._scrollPosition.metadata.closedHeight)
+      : _printError();
 
   /// Bring the panel to [PanelState.collapsed], if this is not a Two-state panel.
   ///
   /// Returned future is completed when the panel is collapsed.
   ///
   /// (Animates to [PanelSize.collapsedHeight]).
-  Future<Null> collapse() async => _collapsePanelCallback();
+  Future<Null> collapse() async => controlling
+      ? panel._metadata.isTwoStatePanel
+          ? null
+          : _setPanelPosition(panel,
+              duration: currentState == PanelState.closed
+                  ? _durationCollapsed
+                  : currentState == PanelState.expanded
+                      ? _durationExpanded
+                      : _getDuration(
+                          from: currentPosition,
+                          to: panel._scrollController._scrollPosition.metadata
+                              .collapsedHeight),
+              to: panel
+                  ._scrollController._scrollPosition.metadata.collapsedHeight)
+      : _printError();
 
   /// Bring the panel to [PanelState.expanded].
   ///
   /// Returned future is completed when the panel is expanded.
   ///
   /// (Animates to [PanelSize.expandedHeight]).
-  Future<Null> expand() async => _expandPanelCallback();
+  Future<Null> expand() async => controlling
+      ? _setPanelPosition(panel,
+          duration: currentState == PanelState.collapsed
+              ? _durationExpanded
+              : currentState == PanelState.closed
+                  ? panel.widget.duration
+                  : _getDuration(
+                      from: currentPosition,
+                      to: panel._scrollController._scrollPosition.metadata
+                          .expandedHeight),
+          to: panel._scrollController._scrollPosition.metadata.expandedHeight)
+      : _printError();
 
   /// Set panel position WITHOUT animation.
   ///
   /// This doesn't return a [Future], as the effect is immediate.
   ///
-  /// value >= 0.0 && value <= 2.0.
-  /// value >= 0.0 && value <= 1.0, for Two-state panel.
-  ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.collapsedHeight].
-  /// 1.0 : [PanelSize.collapsedHeight] ... 2.0 : [PanelSize.expandedHeight].
-  ///
-  ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.expandedHeight], for Two-state panel.
-  void setPanelPosition(double value) => _setPanelPositionCallback(value);
+  /// Given [value] is clamped between [PanelSize.closedHeight] and [PanelSize.expandedHeight].
+  void setPanelPosition(double value) => controlling
+      ? _setPanelPosition(panel, duration: Duration(milliseconds: 0), to: value)
+      : _printError();
 
   /// Set panel position WITH animation.
   ///
   /// Returned future is completed when the panel is animated.
   ///
-  /// value >= 0.0 && value <= 2.0.
-  /// value >= 0.0 && value <= 1.0, for Two-state panel.
+  /// Given [value] is clamped between [PanelSize.closedHeight] and [PanelSize.expandedHeight].
+  Future<Null> setAnimatedPanelPosition(double value) async => controlling
+      ? _setPanelPosition(panel,
+          duration: _getDuration(
+              from: panel._scrollController.metadata.currentHeight, to: value),
+          to: value)
+      : _printError();
+
+  /// Get Panel's height between [PanelSize.closedHeight] and [PanelSize.expandedHeight], given specific [percent] between 0.0 and 1.0.
   ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.collapsedHeight].
-  /// 1.0 : [PanelSize.collapsedHeight] ... 2.0 : [PanelSize.expandedHeight].
+  ///
+  /// e.g.,
+  ///
+  /// [PanelSize.closedHeight] = 0.25
+  ///
+  /// [PanelSize.expandedHeight] = 0.75
+  ///
+  /// If you want to get 25% of panel's height, then pass '0.25' as parameter, you will get '0.375'.
+  ///
+  /// If you want to get 100% of panel's height, then pass '1.00' as parameter, you will get '0.75'.
+  double getPercentToPanelPosition(double percent) {
+    double min = panel._scrollController.metadata.closedHeight;
+    double max = panel._scrollController.metadata.expandedHeight;
+
+    double value = ((percent * (max - min)) + min);
+
+    return (double.parse(value.toStringAsFixed(5)));
+  }
+
+  /// Get Panel's current position as percentage between 0.0 and 1.0, given minimum and maximum positions.
   ///
   ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.expandedHeight], for Two-state panel.
-  Future<Null> setAnimatedPanelPosition(double value) =>
-      _setAnimatedPanelPositionCallback(value);
+  /// e.g.,
+  ///
+  /// [PanelSize.closedHeight] = 0.25
+  ///
+  /// [PanelSize.collapsedHeight] = 0.40
+  ///
+  /// [PanelSize.expandedHeight] = 0.75
+  ///
+  /// If current state is [PanelState.collapsed], (position would be 0.4),
+  /// and you pass [min] as [PanelSize.closedHeight] and [max] as [PanelSize.expandedHeight], this will return '0.3'.
+  ///
+  /// If current position is 0.6, this will return '0.7'.
+  double percentPosition(double min, double max) {
+    if (min >= max) return 0.0;
+
+    if (currentPosition < min) return 0.0;
+
+    if (currentPosition > max) return 1.0;
+
+    double percent = ((currentPosition - min) / (max - min));
+
+    return (double.parse(percent.toStringAsFixed(5)));
+  }
 
   /// Get current position of the panel.
   ///
-  /// Returns between 0.0 to 2.0 and 0.0 to 1.0 for Two-state panel.
-  ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.collapsedHeight].
-  /// 1.0 : [PanelSize.collapsedHeight] ... 2.0 : [PanelSize.expandedHeight].
-  ///
-  ///
-  /// 0.0 : [PanelSize.closedHeight] ... 1.0 : [PanelSize.expandedHeight], for Two-state panel.
-  double getCurrentPanelPosition() => _getCurrentPanelPositionCallback();
+  /// Returns between [PanelSize.closedHeight] and [PanelSize.expandedHeight].
+  double get currentPosition =>
+      controlling ? panel._scrollController.metadata.currentHeight : 0.0;
 
   /// Returns the current [PanelState] of the panel.
-  PanelState getCurrentPanelState() => _currentPanelStateCallback();
+  PanelState get currentState {
+    if (!controlling) {
+      return PanelState.indefinite;
+    }
+
+    if ((!_PanelAnimation.isCleared) &&
+        (_PanelAnimation.animation != null) &&
+        (_PanelAnimation.animation.isAnimating)) {
+      return PanelState.animating;
+    }
+
+    _PanelMetadata data = panel._scrollController.metadata;
+
+    if (data.currentHeight == data.closedHeight)
+      return PanelState.closed;
+    else if ((data.currentHeight == data.collapsedHeight) &&
+        (!panel._metadata.isTwoStatePanel))
+      return PanelState.collapsed;
+    else if (data.currentHeight == data.expandedHeight)
+      return PanelState.expanded;
+    else
+      return PanelState.indefinite;
+  }
 
   /// Triggers a [Notification] with given result, without changing panel state.
   ///
-  /// This result can be anything except null.
+  /// The result can be anything except null.
   ///
   /// Useful in cases like, return some value back to the parent when user taps some item inside panel.
   void sendResult({dynamic result}) {
-    if (result != null) _sendResultCallback(result: result);
+    if (result != null && controlling)
+      SlidingPanelResult(result: result).dispatch(panel.context);
   }
 
-  /// Closes this panel and triggers a [Notification] with given result.
+  /// Closes this panel and then triggers a [Notification] with given result.
   ///
   /// Returned future is completed when the panel is closed.
   ///
-  /// This result can be anything except null.
+  /// The result can be anything except null.
   ///
-  /// Useful in cases like, return some value back to the parent when user taps some item inside panel.
+  /// Useful in cases like, close the panel and then return some value back to the parent when user taps some item inside panel.
   ///
   /// This can be thought of as example of [Navigator.pop] with result.
-  Future<Null> popWithResult({dynamic result}) =>
-      _popWithResultCallback(result: result);
+  Future<Null> popWithResult({dynamic result}) async => close().then((_) {
+        sendResult(result: result);
+      });
+
+  /// Get the [PanelSize] parameters of the current panel.
+  ///
+  /// The values you get from this object are always up-to-date.
+  PanelSizeData get sizeData {
+    if (!controlling) return PanelSizeData._empty();
+
+    _PanelMetadata metadata = panel._scrollController.metadata;
+
+    return PanelSizeData._(
+      closedHeight: metadata.closedHeight,
+      collapsedHeight: metadata.collapsedHeight,
+      expandedHeight: metadata.expandedHeight,
+      totalHeight: metadata.totalHeight,
+    );
+  }
 }

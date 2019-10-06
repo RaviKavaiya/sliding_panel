@@ -1,3 +1,22 @@
+## [0.5.0] - October 06, 2019
+
+This package release introduces some API changes (majorly breaking changes) and a new underlying mechanism. Below are some of the changes. For complete list of changes and migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/flutter_sliding_panel/wiki/Migration-guide).
+
+- **New:** Now specify what happens when user presses back button, using `BackPressBehavior` and `PanelPoppingBehavior`.
+- **New:** Now you can specify the limit of user's dragging the panel, using `allowedDraggingTill` parameter.
+- **New:** Now you can provide `Scrollable` element inside `panelContent`, so that the panel can be dragged and scrolled at the same time.
+- **New:** `snappingTriggerPercentage` added, so that you have more control over panel snapping.
+- **New:** A new class `PanelSizeData` is added (accessed from `PanelController`), which helps to get updated `PanelSize` parameters of this panel.
+- When using `PanelAutoSizing`, you can not change values of `PanelSize` at runtime.
+- `PanelController` also contains some new and breaking changes.
+- `onPanelExpanded`, `onPanelCollapsed` and `onPanelClosed` are all combined in single : `onPanelStateChanged`.
+- **Breaking change:** The `headerContent` is now moved to a separate `Widget` called `PanelHeaderWidget`.
+- **Breaking change:** For `panelContent`, a new `typedef` is introduced, called `PanelBodyBuilder`.
+- **Breaking change:** `PanelSize` class no longer accepts values in *pixels*. Only percentage values can be given from now.
+- **New and Breaking change:** The `PanelState` : `animating` works in adifferent way and a new state `indefinite` added.
+
+
+
 ## [0.2.0] - September 13, 2019
 
 Now, the package is updated with some improvements as below:
