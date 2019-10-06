@@ -5,13 +5,13 @@ A Flutter slidable widget that provides an easy to use configuration. Just as yo
 
 <br>
 
-<img width="300px" alt="Demo" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/demo.gif"/>
+<img width="300px" alt="Demo" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/demo.gif"/>
 
 <br><br>
 
 Make choices | Customize it | Get full control
 --- | --- | ---
-<img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen1.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen2.png"/> | <img width="256px" alt="Screenshot" src="https://github.com/RaviKavaiya/sliding_panel/blob/master/demo/screen3.png"/>
+<img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen1.png"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen2.png"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen3.png"/>
 
 #### Easily put your content in the panel, customize it and then just use the panel for various purposes like, 
 - Showing some persistent content on bottom of the screen.
