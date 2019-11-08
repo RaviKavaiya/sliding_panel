@@ -1,10 +1,12 @@
-## [0.5.0+2] - October 06, 2019
+## [0.7.0] - October 06, 2019
 
-A minor update, that fixes bug in README.md.
+This release introduces below new features. There is no breaking change.
 
-## [0.5.0+1] - October 06, 2019
+- **New:** Now you can specify panel's maximum width under different device orientations using `PanelMaxWidth` parameter.
+- **New:** A new class `PanelFooterWidget` is added, so that you can give your panel a consistent bottom widget!
+- **New:** A new class `PanelScrollData` is added, which is helpful to get current scrolling position of the panel.
 
-A minor update, that fixes bug in README.md.
+
 
 ## [0.5.0] - October 06, 2019
 

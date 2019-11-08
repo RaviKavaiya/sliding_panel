@@ -188,6 +188,11 @@ class _TwoStateExampleState extends State<TwoStateExample> {
           // closedHeight can also be > 0
           // we are explicitly giving expandedHeight here, so if anything goes wrong, this size will be used
           autoSizing: PanelAutoSizing(autoSizeExpanded: true),
+          //
+          maxWidth: PanelMaxWidth(landscape: 400),
+          // if the device comes to landscape mode, it can take maximum 400 pixels width.
+          // portrait mode isn't affected here.
+          //
           duration: Duration(milliseconds: 500),
           backPressBehavior: behavior,
           // don't allow user to close this panel by tapping back button

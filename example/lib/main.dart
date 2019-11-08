@@ -1,6 +1,7 @@
 import 'package:example/controller-callback-options.dart';
 import 'package:example/separate.dart';
 import 'package:example/sizing.dart';
+import 'package:example/footer_scroll.dart';
 import 'package:example/two-state.dart';
 import 'package:flutter/material.dart';
 
@@ -69,6 +70,16 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             title: Text('Use of PanelController, Callbacks and customization'),
+          ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FooterAndScroll()),
+              );
+            },
+            title: Text('Max width, FooterWidget and PanelScrollData'),
           ),
         ],
       ),

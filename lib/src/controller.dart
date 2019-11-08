@@ -273,4 +273,11 @@ class PanelController {
       totalHeight: metadata.totalHeight,
     );
   }
+
+  /// Contains [ScrollController] used by the panel and also contains some useful properties to use that controller.
+  PanelScrollData get scrollData {
+    if (!controlling) return PanelScrollData._empty();
+
+    return PanelScrollData._(panel._scrollController);
+  }
 }

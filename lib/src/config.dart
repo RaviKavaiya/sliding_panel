@@ -63,6 +63,24 @@ class PanelHeaderWidget {
   });
 }
 
+/// The widget that will be shown below the panel, regardless of [PanelState] (A persistent widget).
+///
+/// This can be used to show a [ButtonBar] like widget.
+///
+/// If the height of this widget is not calculatable, it will NOT be shown.
+class PanelFooterWidget {
+  /// The widget content.
+  final Widget footerContent;
+
+  /// The decoration to be applied on the [footerContent].
+  final PanelDecoration decoration;
+
+  const PanelFooterWidget({
+    this.footerContent,
+    this.decoration = const PanelDecoration.empty(),
+  });
+}
+
 /// The main widget that is shown as the panel content. When collapsed, content till [PanelCollapsedWidget.collapsedContent] is shown.
 ///
 /// If [PanelCollapsedWidget.collapsedContent] is provided, that will be shown over this and will crossfade when sliding.
@@ -90,6 +108,13 @@ class PanelContent {
   /// If the height of this widget is not calculatable, it will NOT be shown.
   final PanelHeaderWidget headerWidget;
 
+  /// The widget that will be shown below the panel, regardless of [PanelState] (A persistent widget).
+  ///
+  /// This can be used to show a [ButtonBar] like widget.
+  ///
+  /// If the height of this widget is not calculatable, it will NOT be shown.
+  final PanelFooterWidget footerWidget;
+
   /// The widget that is shown as the panel content. When collapsed, content till [collapsedWidget] is shown.
   ///
   /// If [collapsedWidget] is provided, that will be shown over this and will crossfade when sliding.
@@ -113,10 +138,29 @@ class PanelContent {
 
   const PanelContent({
     this.headerWidget = const PanelHeaderWidget(),
+    this.footerWidget = const PanelFooterWidget(),
     @required this.panelContent,
     this.bodyContent,
     this.collapsedWidget = const PanelCollapsedWidget(),
   }) : assert(panelContent != null);
+}
+
+/// Specify maximum width of the panel. Used to specify [BoxConstraints] in [Container].
+///
+/// Default : [double.infinity], which means as wide as allowed by screen.
+///
+/// Provide values in pixels.
+class PanelMaxWidth {
+  /// Maximum width occupied by the panel when device is in [Orientation.portrait] mode.
+  final double portrait;
+
+  /// Maximum width occupied by the panel when device is in [Orientation.landscape] mode.
+  final double landscape;
+
+  const PanelMaxWidth({
+    this.portrait = double.infinity,
+    this.landscape = double.infinity,
+  });
 }
 
 /// Provide different height of the panel in percentage of screen's height according to panel's current state.

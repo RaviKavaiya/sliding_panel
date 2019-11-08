@@ -22,6 +22,13 @@ class SlidingPanel extends StatefulWidget {
   /// Give values between 0.0 and 1.0, considered as percentage.
   final PanelSize size;
 
+  /// Specify maximum width of the panel. Used to specify [BoxConstraints] in [Container].
+  ///
+  /// Default : [double.infinity], which means as wide as allowed by screen.
+  ///
+  /// Provide values in pixels.
+  final PanelMaxWidth maxWidth;
+
   /// The decoration to be applied on the [PanelContent].
   final PanelDecoration decoration;
 
@@ -161,6 +168,7 @@ class SlidingPanel extends StatefulWidget {
     this.initialState = InitialPanelState.closed,
     @required this.content,
     this.size = const PanelSize(),
+    this.maxWidth = const PanelMaxWidth(),
     this.decoration = const PanelDecoration(),
     this.backdropConfig = const BackdropConfig(),
     this.panelController,

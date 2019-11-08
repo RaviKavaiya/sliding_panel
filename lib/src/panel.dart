@@ -15,6 +15,11 @@ class _SlidingPanelState extends State<SlidingPanel>
   bool _toShowHeader = false;
   double _calculatedHeaderHeight = 0.0;
 
+  GlobalKey _keyFooter = GlobalKey();
+  bool _footerCalculated = false;
+  bool _toShowFooter = false;
+  double _calculatedFooterHeight = 0.0;
+
   GlobalKey _keyCollapsed = GlobalKey();
   bool _collapsedCalculated = false;
 
@@ -22,6 +27,7 @@ class _SlidingPanelState extends State<SlidingPanel>
   bool _contentCalculated = false;
 
   Size _screenSizeData;
+  Orientation _screenOrientation;
 
   Map<PanelDraggingDirection, double> _getAllowedDraggingTill(
       Map<PanelDraggingDirection, double> allowedDraggingTill) {
@@ -85,6 +91,7 @@ class _SlidingPanelState extends State<SlidingPanel>
         _calculateHeights();
       } else {
         _calculateHeaderHeight();
+        _calculateFooterHeight();
         _collapsedCalculated = true;
         _contentCalculated = true;
       }
@@ -123,9 +130,35 @@ class _SlidingPanelState extends State<SlidingPanel>
     }
   }
 
+  void _calculateFooterHeight() {
+    final RenderBox boxFooter =
+        _keyFooter?.currentContext?.findRenderObject() ?? null;
+
+    // calculate footer height
+    if ((boxFooter?.size?.height ?? null) != null) {
+      // footer provided and size calculated.
+      // so, this height has to be added to all other heights.
+
+      final footerHeight = boxFooter.size.height;
+
+      setState(() {
+        _toShowFooter = true;
+
+        _calculatedFooterHeight = footerHeight;
+
+        _footerCalculated = true;
+      });
+    } else {
+      // no footer given or size can't be determined.
+      setState(() {
+        _toShowFooter = false;
+      });
+    }
+  }
+
   void _calculateHeights() {
     // take temporary variables.
-    double _headerHeightTemp = _calculatedHeaderHeight;
+    double _additionalHeight = 0.0;
 
     double _closedHeightTemp = _metadata.closedHeight;
     bool _closedHeightChanged = false;
@@ -144,8 +177,12 @@ class _SlidingPanelState extends State<SlidingPanel>
         _keyContent?.currentContext?.findRenderObject() ?? null;
 
     _calculateHeaderHeight();
+    _calculateFooterHeight();
     if (_toShowHeader) {
-      _headerHeightTemp = _calculatedHeaderHeight;
+      _additionalHeight += _calculatedHeaderHeight;
+    }
+    if (_toShowFooter) {
+      _additionalHeight += _calculatedFooterHeight;
     }
 
     if (widget.autoSizing.headerSizeIsClosed) {
@@ -169,11 +206,11 @@ class _SlidingPanelState extends State<SlidingPanel>
           setState(() {
             if (_toShowHeader) {
               // add header height to collapsedHeight.
-              _collapsedHeightTemp = colHeight + _headerHeightTemp;
+              _collapsedHeightTemp = colHeight + _additionalHeight;
 
-              if (_headerHeightTemp > _collapsedHeightTemp) {
+              if (_additionalHeight > _collapsedHeightTemp) {
                 // this should not happen.
-                _collapsedHeightTemp = _headerHeightTemp;
+                _collapsedHeightTemp = _additionalHeight;
               }
             } else {
               _collapsedHeightTemp = colHeight;
@@ -202,7 +239,7 @@ class _SlidingPanelState extends State<SlidingPanel>
             // and maximum of (it's actual height + header height) and (collapsedHeight (which also includes header height))
 
             _expandedHeightTemp = min(_screenSizeData.height,
-                max(expHeight + _headerHeightTemp, _collapsedHeightTemp));
+                max(expHeight + _additionalHeight, _collapsedHeightTemp));
           } else {
             // set expanded to collapsed.
             _expandedHeightTemp = _collapsedHeightTemp;
@@ -210,8 +247,8 @@ class _SlidingPanelState extends State<SlidingPanel>
         } else {
           if (_toShowHeader) {
             // select minimum of screen height / boxHeight including header.
-            _expandedHeightTemp = min(expHeight + _headerHeightTemp,
-                _screenSizeData.height + _headerHeightTemp);
+            _expandedHeightTemp = min(expHeight + _additionalHeight,
+                _screenSizeData.height + _additionalHeight);
           } else {
             // select minimum of screen height / boxHeight.
             _expandedHeightTemp = min(expHeight, _screenSizeData.height);
@@ -259,18 +296,23 @@ class _SlidingPanelState extends State<SlidingPanel>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    if (_screenSizeData == null) {
-      _screenSizeData = MediaQuery.of(context).size;
-    } else {
-      if (MediaQuery.of(context).size != _screenSizeData) {
-        // resolution changed
+    final MediaQueryData queryData = MediaQuery.of(context);
 
-        _screenSizeData = MediaQuery.of(context).size;
+    if (_screenSizeData == null) {
+      _screenSizeData = queryData.size;
+      _screenOrientation = queryData.orientation;
+    } else {
+      if (queryData.size != _screenSizeData) {
+        // resolution / orientation changed
+
+        _screenSizeData = queryData.size;
+        _screenOrientation = queryData.orientation;
 
         if (widget.autoSizing.headerSizeIsClosed ||
             widget.autoSizing.autoSizeCollapsed ||
             widget.autoSizing.autoSizeExpanded) {
           _headerCalculated = false;
+          _footerCalculated = false;
           _collapsedCalculated = false;
           _contentCalculated = false;
           SchedulerBinding.instance.addPostFrameCallback((x) {
@@ -283,6 +325,7 @@ class _SlidingPanelState extends State<SlidingPanel>
         } else {
           SchedulerBinding.instance.addPostFrameCallback((x) {
             _calculateHeaderHeight();
+            _calculateFooterHeight();
             _collapsedCalculated = true;
             _contentCalculated = true;
 
@@ -427,6 +470,7 @@ class _SlidingPanelState extends State<SlidingPanel>
           widget.autoSizing.autoSizeCollapsed ||
           widget.autoSizing.autoSizeExpanded) {
         _headerCalculated = false;
+        _footerCalculated = false;
         _collapsedCalculated = false;
         _contentCalculated = false;
         _calculateHeights();
@@ -436,6 +480,7 @@ class _SlidingPanelState extends State<SlidingPanel>
         widget?.panelController?._updateDurations();
       } else {
         _calculateHeaderHeight();
+        _calculateFooterHeight();
         _collapsedCalculated = true;
         _contentCalculated = true;
 
@@ -452,10 +497,21 @@ class _SlidingPanelState extends State<SlidingPanel>
     super.dispose();
   }
 
-  Widget _headerAndPanel() {
+  Widget _mainPanel() {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        // TODO: this
+        /*Flexible(
+          child: CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                title: Text('ABCD'),
+              ),
+            ],
+          ),
+        ),*/
+
         // header
         widget.content.headerWidget.headerContent != null
             ? Offstage(
@@ -577,6 +633,58 @@ class _SlidingPanelState extends State<SlidingPanel>
             ],
           ),
         ),
+
+        // footer
+        widget.content.footerWidget.footerContent != null
+            ? Offstage(
+                offstage: (!_footerCalculated),
+                child: GestureDetector(
+                  onVerticalDragUpdate: (details) => _dragPanel(
+                    _metadata,
+                    delta: details.primaryDelta,
+                    shouldListScroll: false,
+                    isGesture: true,
+                    dragFromBody: widget.backdropConfig.dragFromBody,
+                    scrollContentSuper: () {},
+                  ),
+                  onVerticalDragEnd: (details) =>
+                      _onPanelDragEnd(this, -details.primaryVelocity),
+                  child: Container(
+                    decoration: widget.content.footerWidget.decoration != null
+                        ? BoxDecoration(
+                            border:
+                                widget.content.footerWidget.decoration.border,
+                            borderRadius: widget
+                                .content.footerWidget.decoration.borderRadius,
+                            boxShadow: widget
+                                .content.footerWidget.decoration.boxShadows,
+                            color: widget.content.footerWidget.decoration
+                                .backgroundColor,
+                          )
+                        : null,
+                    child: Container(
+                      height: min(
+                          (max(
+                              _metadata.currentHeight * _metadata.totalHeight -
+                                  _calculatedHeaderHeight,
+                              0.0)),
+                          _calculatedFooterHeight),
+                      width: _screenSizeData.width -
+                          (widget.content.footerWidget.decoration.margin == null
+                              ? 0
+                              : widget.content.footerWidget.decoration.margin
+                                  .horizontal) -
+                          (widget.content.footerWidget.decoration.padding ==
+                                  null
+                              ? 0
+                              : widget.content.footerWidget.decoration.padding
+                                  .horizontal),
+                      child: widget.content.footerWidget.footerContent,
+                    ),
+                  ),
+                ),
+              )
+            : Container(),
       ],
     );
   }
@@ -586,7 +694,6 @@ class _SlidingPanelState extends State<SlidingPanel>
       alignment: Alignment.bottomCenter,
       children: <Widget>[
         // for calculating the size.
-
         widget.content.headerWidget.headerContent == null
             ? Container()
             : Offstage(
@@ -605,6 +712,28 @@ class _SlidingPanelState extends State<SlidingPanel>
                       : null,
                   child: Container(
                     child: widget.content.headerWidget.headerContent,
+                  ),
+                ),
+              ),
+
+        widget.content.footerWidget.footerContent == null
+            ? Container()
+            : Offstage(
+                child: Container(
+                  key: _keyFooter,
+                  decoration: widget.content.footerWidget.decoration != null
+                      ? BoxDecoration(
+                          border: widget.content.footerWidget.decoration.border,
+                          borderRadius: widget
+                              .content.footerWidget.decoration.borderRadius,
+                          boxShadow:
+                              widget.content.footerWidget.decoration.boxShadows,
+                          color: widget
+                              .content.footerWidget.decoration.backgroundColor,
+                        )
+                      : null,
+                  child: Container(
+                    child: widget.content.footerWidget.footerContent,
                   ),
                 ),
               ),
@@ -667,6 +796,11 @@ class _SlidingPanelState extends State<SlidingPanel>
 
         // the panel content
         Container(
+          constraints: BoxConstraints(
+            maxWidth: _screenOrientation == Orientation.portrait
+                ? widget.maxWidth.portrait
+                : widget.maxWidth.landscape,
+          ),
           padding: widget.decoration.padding,
           margin: widget.decoration.margin,
           height: _metadata.currentHeight * _screenSizeData.height,
@@ -678,7 +812,7 @@ class _SlidingPanelState extends State<SlidingPanel>
                   color: widget.decoration.backgroundColor,
                 )
               : null,
-          child: _headerAndPanel(),
+          child: _mainPanel(),
         ),
       ],
     );
