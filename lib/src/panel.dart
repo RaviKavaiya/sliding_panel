@@ -501,17 +501,6 @@ class _SlidingPanelState extends State<SlidingPanel>
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        // TODO: this
-        /*Flexible(
-          child: CustomScrollView(
-            slivers: <Widget>[
-              SliverAppBar(
-                title: Text('ABCD'),
-              ),
-            ],
-          ),
-        ),*/
-
         // header
         widget.content.headerWidget.headerContent != null
             ? Offstage(
