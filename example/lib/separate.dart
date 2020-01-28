@@ -16,11 +16,7 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
     pc = PanelController();
   }
 
-  Widget _content(ScrollController scrollController) {
-    return ListView(
-      shrinkWrap: true,
-      controller: scrollController,
-      children: <Widget>[
+  List<Widget> get _content => [
         Container(
           padding: EdgeInsets.symmetric(vertical: 16),
           child: Column(
@@ -64,9 +60,7 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
             ],
           ),
         ),
-      ],
-    );
-  }
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -107,22 +101,15 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
           ),
           SlidingPanel(
             panelController: pc,
-            backdropConfig: BackdropConfig(
-                enabled: true, closeOnTap: true, shadowColor: Colors.blue),
+            backdropConfig: BackdropConfig(enabled: true, closeOnTap: true, shadowColor: Colors.blue),
             content: PanelContent(
-              panelContent: (context, scrollController) {
-                return _content(scrollController);
-              },
+              panelContent: _content,
               bodyContent: null,
               // see this...
             ),
-            snapPanel: true,
-            size: PanelSize(
-                closedHeight: 0.15,
-                collapsedHeight: 0.40,
-                expandedHeight: 0.85),
+            snapping: PanelSnapping.enabled,
+            size: PanelSize(closedHeight: 0.15, collapsedHeight: 0.40, expandedHeight: 0.85),
             autoSizing: PanelAutoSizing(
-              autoSizeCollapsed: true,
               autoSizeExpanded: true,
             ),
             //

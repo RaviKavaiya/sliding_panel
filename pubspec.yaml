@@ -1,15 +1,16 @@
 name: sliding_panel
 description: A Flutter slidable widget that provides an easy to use configuration. Just as you want it!
-version: 0.7.0
-author: Ravi Kavaiya <ravikavaiya3.rk@gmail.com>
+version: 1.0.1
 homepage: https://github.com/RaviKavaiya/sliding_panel
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.6.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+
+  collection: ^1.14.11
 
 dev_dependencies:
   flutter_test:

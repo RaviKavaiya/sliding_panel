@@ -1,4 +1,71 @@
-## [0.7.0] - October 06, 2019
+## [1.0.1] - January 24, 2020
+
+`sliding_panel`'s first 2020 update comes with a bunch of changes, fixes and enhancements!
+
+For migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide).
+
+### Dismissible panel:
+- Now, the panel can be dismissed. Means, it can work as **4-state** panel, namely `expanded, collapsed, closed and dismissed`.
+- As a part of this change, `PanelController.dismiss()`, `PanelState.dismissed` and `InitialPanelState.dismissed` were added.
+- *This works for two-state panels also!*
+
+***
+
+### Modal panel:
+- Use `SlidingPanel` *exactly* same as `showModalBottomSheet()`, by calling `showModalSlidingPanel()`. It pushes a new route, waits for a `Navigator.of(context).pop()`...
+And guess what, you can also send results back, same as you did in `showModalBottomSheet()`!!!
+
+***
+
+### `PanelHeader` changes and improvements:
+- PanelHeader is now rendered as a `SliverAppBar`! It has its own advantages.
+- PanelHeader now also accepts a parameter: `options`, an instance of `PanelHeaderOptions`, specially meant to customize the header.
+
+***
+
+### `panelContent` changes:
+- **Breaking change:** `PanelContent.panelContent` now only accepts a `List<Widget>`. To get access to `ScrollController`, grab that by `PanelController.scrollData.scrollController`.
+- **Breaking change:** As part of above change, you DON'T have to attach the `ScrollController` yourself to any Widget. It is now done **automatically**.
+- `panelContent` is now *cached*, so that it doesn't require parent to provide the same content twice due to `PanelAutoSizing`.
+
+***
+
+- **Breaking change:** `snapPanel` was removed. Instead, a new enum called `PanelSnapping` is introduced. (The parameter is now called `snapping`).
+- **Breaking change:** In `PanelDecoration` , the `backgroundColor` defaults to the app's canvas color (i.e., `Theme.of(context).canvasColor`).
+- **Breaking change:** The `Duration` is now calculated from `PanelState.dismissed` to `PanelState.expanded` instead of from `PanelState.closed` to `PanelState.expanded`.
+- **Breaking change:** The `PanelController.popWithResult()` will `dismiss` the panel, instead of `close`. To avoid this, set `shouldCloseOnly` to `true`. (This also applies to a newly introduced `PanelController.popWithThrowResult()`).
+
+
+- **Change:** Now, the PanelController doesn't throw error when it is re-assigned to different SlidingPanel. It simply ignores old one and points to new one.
+- **Change:** `PanelCollapsedWidget` is now shown **below** the `PanelHeaderWidget`.
+- **Refactor:** The code in `panel.dart` is refactored a lot. Now, it should be easy to understand.
+
+***
+
+- **Fix + improved:** `PanelAutoSizing` related bugs fixed (they were many), unnecessary calculations removed.
+- **Fix:** For calculating various heights, 'Screen height (and width)' was used. Now, available 'Constrained height' is used, for more accurate calculation.
+- **Fix:** A bug fixed that caused `double.infinity` or `double.NaN` when duration was being calculated.
+- **Fix:** A bug fixed that caused `double.NaN` when backdrop opacity was being calculated.
+- **Fix:** A bug fixed that caused `double.NaN` when panel's expanded height was being calculated.
+- **Fix:** `Disposed with active ticker` bug fixed. (Was caused when panel is animating and route is popped.)
+- **Fix:** The panel now remembers the position when device's resolution / orientation changes.
+- **Fix:** A bug with `BackPressBehavior.COLLAPSE_CLOSE_POP` fixed.
+
+***
+ 
+- **New:** A whole new `Sliver` based layout, where the `PanelHeaderWidget` is a `SliverAppBar` and contents are inside `SliverList`.
+- **New:** Call `rebuild()` on PanelController to recalculate the PanelSize again.
+- **New:** New way to notify changes to the parent, using `throwResult()` and `popWithThrowResult()` which give results to `onThrowResult` callback.
+- **New:** A new parameter called `useMinExpanded` available in `PanelAutoSizing`, so that `PanelSize.expandedHeight` also gets considered when calculating the height.
+- **New:** A new parameter called `panelClosedOptions` available. Don't forget to check it out and decide what happens when the panel is closed.
+- **New:** Now `PanelController.sizeData` gives two additional properties: `constrainedHeight` and `constrainedWidth`.
+- **New:** New parameter: `animatedAppearing`. If true, the panel animates to `initialState`, initially.
+- **New:** New parameter: `dragMultiplier`. Now decide the amount of the panel slides when user drags the panel.
+
+
+
+
+## [0.7.0] - November 08, 2019
 
 This release introduces below new features. There is no breaking change.
 

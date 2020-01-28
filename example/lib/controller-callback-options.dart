@@ -9,7 +9,8 @@ class CustomizeDemo extends StatefulWidget {
 class _CustomizeDemoState extends State<CustomizeDemo> {
   PanelController pc;
 
-  bool draggable = true, snap = true, backdrop = true, dragBody = true;
+  bool draggable = true, snap = true, backdrop = true, dragBody = true, snapForced = true;
+  bool additional = false;
 
   @override
   void initState() {
@@ -20,50 +21,43 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
 
   Widget _contentCollapsed() {
     return Container(
-      padding: EdgeInsets.all(32),
+      padding: EdgeInsets.all(12),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(4.0),
             child: Text(
               'Welcome',
-              style: Theme.of(context).textTheme.headline,
+              style: Theme.of(context).textTheme.title,
             ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  'Swipe up ...',
-                  style: Theme.of(context).textTheme.title,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  '(Or tap outside to close)',
-                  style: Theme.of(context).textTheme.subhead,
-                ),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Text(
+              'Swipe up... or tap outside to close',
+              style: Theme.of(context).textTheme.subhead,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _content(ScrollController scrollController) {
-    return ListView(
-      shrinkWrap: true,
-      controller: scrollController,
-      children: <Widget>[
+  List<Widget> get _content => [
+        if (additional)
+          Container(
+            color: Colors.blue,
+            padding: EdgeInsets.all(24.0),
+            margin: EdgeInsets.all(24.0),
+            child: Text(
+              'Some additional content!!!',
+              style: Theme.of(context).textTheme.title,
+              textAlign: TextAlign.center,
+            ),
+          ),
         Padding(
           padding: const EdgeInsets.all(24.0),
           child: FlutterLogo(
@@ -91,9 +85,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
             style: Theme.of(context).textTheme.subhead,
           ),
         ),
-      ],
-    );
-  }
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +95,10 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
       ),
       body: SlidingPanel(
         panelController: pc,
-        backdropConfig: BackdropConfig(
-            enabled: backdrop,
-            closeOnTap: true,
-            shadowColor: Colors.blue,
-            dragFromBody: dragBody),
+        backdropConfig:
+            BackdropConfig(enabled: backdrop, closeOnTap: true, shadowColor: Colors.blue, dragFromBody: dragBody),
         content: PanelContent(
-          panelContent: (_, scrollController) {
-            return _content(scrollController);
-          },
+          panelContent: _content,
           collapsedWidget: PanelCollapsedWidget(
             collapsedContent: _contentCollapsed(),
           ),
@@ -131,6 +118,27 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
 //                          print('panel is collapsed now');
                         }); // open panel in Collapsed mode
                         // majority of PanelController methods return Future !!!
+                      },
+                    ),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: backdrop ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Backdrop"),
+                      onPressed: () {
+                        setState(() {
+                          backdrop = !backdrop;
+                        });
+                      },
+                    ),
+                    RaisedButton(
+                      child: Text("Toggle additional content, rebuild then expand"),
+                      onPressed: () {
+                        setState(() {
+                          additional = !additional;
+                          pc.rebuild(then: pc.expand);
+                        });
                       },
                     ),
                     RaisedButton(
@@ -170,23 +178,13 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         Icons.done,
                         color: snap ? Colors.blue : Colors.black,
                       ),
-                      label: Text("Toggle snappable"),
+                      label: Text("Snappable"),
                       onPressed: () {
                         setState(() {
                           snap =
                               !snap; // snap means, when you stop dragging panel manually, it takes a position automatically
-                        });
-                      },
-                    ),
-                    RaisedButton.icon(
-                      icon: Icon(
-                        Icons.done,
-                        color: backdrop ? Colors.blue : Colors.black,
-                      ),
-                      label: Text("Toggle backdrop"),
-                      onPressed: () {
-                        setState(() {
-                          backdrop = !backdrop;
+
+                          if (!snap) snapForced = false;
                         });
                       },
                     ),
@@ -195,7 +193,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         Icons.done,
                         color: draggable ? Colors.blue : Colors.black,
                       ),
-                      label: Text("Toggle draggable"),
+                      label: Text("Draggable"),
                       onPressed: () {
                         setState(() {
                           draggable =
@@ -208,11 +206,23 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         Icons.done,
                         color: dragBody ? Colors.blue : Colors.black,
                       ),
-                      label: Text("Toggle drag from body"),
+                      label: Text("Drag from body"),
                       onPressed: () {
                         setState(() {
-                          dragBody =
-                              !dragBody; // if true, panel can also be moved by dragging over body
+                          dragBody = !dragBody; // if true, panel can also be moved by dragging over body
+                        });
+                      },
+                    ),
+                    RaisedButton.icon(
+                      icon: Icon(
+                        Icons.done,
+                        color: snapForced ? Colors.blue : Colors.black,
+                      ),
+                      label: Text("Snap forcefully"),
+                      onPressed: () {
+                        setState(() {
+                          snapForced = !snapForced; // if true, panel will ALWAYS snap
+                          if (snapForced) snap = true;
                         });
                       },
                     ),
@@ -253,10 +263,9 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         },
         duration: Duration(milliseconds: 1000),
         parallaxSlideAmount: 0.0,
-        snapPanel: snap,
+        snapping: snapForced ? PanelSnapping.forced : snap ? PanelSnapping.enabled : PanelSnapping.disabled,
         isDraggable: draggable,
-        decoration:
-            PanelDecoration(backgroundColor: Colors.orange[200], boxShadows: [
+        decoration: PanelDecoration(backgroundColor: Colors.orange[200], boxShadows: [
           BoxShadow(
             blurRadius: 8.0,
             color: Colors.orange[400].withOpacity(0.75),

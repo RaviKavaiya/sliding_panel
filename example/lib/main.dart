@@ -1,7 +1,9 @@
 import 'package:example/controller-callback-options.dart';
+import 'package:example/dismissible.dart';
+import 'package:example/footer_scroll.dart';
+import 'package:example/modal_panel.dart';
 import 'package:example/separate.dart';
 import 'package:example/sizing.dart';
-import 'package:example/footer_scroll.dart';
 import 'package:example/two-state.dart';
 import 'package:flutter/material.dart';
 
@@ -55,8 +57,7 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => SeparateContentExample()),
+                MaterialPageRoute(builder: (context) => SeparateContentExample()),
               );
             },
             title: Text('Panel without bodyContent'),
@@ -80,6 +81,26 @@ class _MyHomePageState extends State<MyHomePage> {
               );
             },
             title: Text('Max width, FooterWidget and PanelScrollData'),
+          ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => DismissibleExample()),
+              );
+            },
+            title: Text('Dismissible panel'),
+          ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ModalPanelExample()),
+              );
+            },
+            title: Text('Modal panel'),
           ),
         ],
       ),

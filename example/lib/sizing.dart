@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_panel/sliding_panel.dart';
 
@@ -19,11 +18,7 @@ class _SizingExampleState extends State<SizingExample> {
 
   double _closed = 0.15, _collapsed = 0.40, _expanded = 0.70;
 
-  Widget _content(ScrollController scrollController) {
-    return ListView(
-      shrinkWrap: true,
-      controller: scrollController,
-      children: <Widget>[
+  List<Widget> get _content => [
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: Text(
@@ -31,9 +26,7 @@ class _SizingExampleState extends State<SizingExample> {
             style: Theme.of(context).textTheme.headline,
           ),
         ),
-      ],
-    );
-  }
+      ];
 
   @override
   Widget build(BuildContext context) {
@@ -45,31 +38,7 @@ class _SizingExampleState extends State<SizingExample> {
         panelController: pc,
         parallaxSlideAmount: 0.0,
         content: PanelContent(
-          panelContent: (_, scrollController) {
-            return _content(scrollController);
-          },
-          headerWidget: PanelHeaderWidget(
-            headerContent: FractionallySizedBox(
-              widthFactor: 0.1,
-              child: Container(
-                margin: EdgeInsets.symmetric(vertical: 16.0),
-                height: 6,
-                decoration: BoxDecoration(
-                  color: Colors.grey[700],
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-              ),
-            ),
-            decoration: PanelDecoration(
-              backgroundColor: Colors.grey[100],
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(4),
-                topRight: Radius.circular(4),
-              ),
-            ),
-          ),
+          panelContent: _content,
           bodyContent: Center(
             child: ListView(
               children: <Widget>[
@@ -145,18 +114,23 @@ class _SizingExampleState extends State<SizingExample> {
                         style: Theme.of(context).textTheme.subhead,
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.all(12.0),
+                      child: Text(
+                        'Here, we also make use of \'animatedAppearing\'.',
+                        style: Theme.of(context).textTheme.subhead,
+                      ),
+                    ),
                   ],
                 ),
               ],
             ),
           ),
         ),
-        size: PanelSize(
-            closedHeight: _closed,
-            collapsedHeight: _collapsed,
-            expandedHeight: _expanded),
-        snapPanel: true,
+        size: PanelSize(closedHeight: _closed, collapsedHeight: _collapsed, expandedHeight: _expanded),
+        snapping: PanelSnapping.enabled,
         initialState: InitialPanelState.collapsed,
+        animatedAppearing: true,
       ),
     );
   }

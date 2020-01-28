@@ -20,10 +20,12 @@ class _PanelSnapData {
   _PanelScrollPosition scrollPos;
   double from, to, dragVelocity, flingVelocity;
   bool shouldPanelSnap;
+  PanelSnapping snapping;
 
   _PanelSnapData({
     @required this.scrollPos,
     @required this.dragVelocity,
+    @required this.snapping,
   })  : shouldPanelSnap = false,
         flingVelocity = -2.0;
 
@@ -38,14 +40,12 @@ class _PanelSnapData {
     from = scrollPos.metadata.currentHeight;
     to = from;
 
-    Map<PanelDraggingDirection, double> allowedDraggingTill =
-        scrollPos.metadata.allowedDraggingTill;
+    Map<PanelDraggingDirection, double> allowedDraggingTill = scrollPos.metadata.allowedDraggingTill;
 
     PanelState toState = PanelState.indefinite;
     // initially, some other state
 
     shouldPanelSnap = false;
-    flingVelocity = -2.0;
 
     if (twoStatePanel) {
       // two state panels only close and expand
@@ -54,52 +54,92 @@ class _PanelSnapData {
         // there is no restriction for two-state panels
         shouldPanelSnap = true;
 
-        if (dragVelocity > 0) {
-          // swipe upside
-          toState = PanelState.expanded;
-        } else if (dragVelocity < 0) {
-          // swipe downside
-          toState = PanelState.closed;
+        if ((snapping == PanelSnapping.forced) && (dragVelocity.abs() == 0.1)) {
+          // snap forcefully to a position
+          if (currentH >= ((closedH + expandedH) / 2)) {
+            // panel currently above middle point
+            dragVelocity = dragVelocity.abs();
+            toState = PanelState.expanded;
+          } else {
+            toState = PanelState.closed;
+          }
+        } else {
+          if (dragVelocity > 0) {
+            // swipe upside
+            toState = PanelState.expanded;
+          } else if (dragVelocity < 0) {
+            // swipe downside
+            toState = PanelState.closed;
+          }
         }
       } else {
         // nothing to do (snap : false)
+        // or dismissed already
         shouldPanelSnap = false;
         return;
       }
     } else {
-      if (dragVelocity > 0) {
-        // swipe upside
-
-        if (currentH >= collapsedH) {
-          if (currentH == expandedH) {
-            return;
-          }
-          toState = PanelState.expanded;
-        } else if (currentH >= closedH) {
-          if (currentH == collapsedH) {
-            return;
-          }
-          toState = PanelState.collapsed;
-        } else {
+      if ((snapping == PanelSnapping.forced) && (dragVelocity.abs() == 0.1)) {
+        //snap forcefully to a position
+        if (currentH == closedH || currentH == collapsedH || currentH == expandedH || currentH == 0.0) {
+          // if already in a state, or dismissed
           return;
+        } else {
+          if (currentH > collapsedH) {
+            // panel on upper half
+            if (currentH >= ((collapsedH + expandedH) / 2)) {
+              // panel currently above middle point
+              dragVelocity = dragVelocity.abs();
+              toState = PanelState.expanded;
+            } else {
+              toState = PanelState.collapsed;
+            }
+          } else {
+            // panel on lower half
+            if (currentH >= ((closedH + collapsedH) / 2)) {
+              // panel currently above middle point
+              dragVelocity = dragVelocity.abs();
+              toState = PanelState.collapsed;
+            } else {
+              toState = PanelState.closed;
+            }
+          }
         }
-      } else if (dragVelocity < 0) {
-        // swipe downside
+      } else {
+        if (dragVelocity > 0) {
+          // swipe upside
 
-        if (currentH <= collapsedH) {
-          if (currentH == closedH) {
+          if (currentH >= collapsedH) {
+            if (currentH == expandedH) {
+              return;
+            }
+            toState = PanelState.expanded;
+          } else if (currentH >= closedH) {
+            if (currentH == collapsedH) {
+              return;
+            }
+            toState = PanelState.collapsed;
+          } else {
             return;
           }
+        } else if (dragVelocity < 0) {
+          // swipe downside
 
-          toState = PanelState.closed;
-        } else if (currentH <= expandedH) {
-          if (currentH == collapsedH) {
+          if (currentH <= collapsedH) {
+            if (currentH == closedH) {
+              return;
+            }
+
+            toState = PanelState.closed;
+          } else if (currentH <= expandedH) {
+            if (currentH == collapsedH) {
+              return;
+            }
+
+            toState = PanelState.collapsed;
+          } else {
             return;
           }
-
-          toState = PanelState.collapsed;
-        } else {
-          return;
         }
       }
     }
@@ -122,10 +162,13 @@ class _PanelSnapData {
         shouldPanelSnap = false;
         return;
         break;
+      case PanelState.dismissed:
+        shouldPanelSnap = false;
+        return;
+        break;
     }
 
-    if ((!(allowedDraggingTill.containsKey(PanelDraggingDirection.ALLOW))) &&
-        (!twoStatePanel)) {
+    if ((!(allowedDraggingTill.containsKey(PanelDraggingDirection.ALLOW))) && (!twoStatePanel)) {
       // there is some restriction, not two-state panel
       if (to > from) {
         // swipe upside
@@ -185,13 +228,12 @@ class _PanelSnapData {
         // set flingVelocity
 
         flingVelocity = (dragVelocity /
-            ((scrollPos.metadata.totalHeight * expandedH) -
-                (scrollPos.metadata.totalHeight * closedH)));
+            ((scrollPos.metadata.totalHeight * expandedH) - (scrollPos.metadata.totalHeight * closedH)));
       }
 
       // animate
       _PanelAnimation.isCleared = false;
-      _PanelAnimation.animation.fling(velocity: flingVelocity);
+      _PanelAnimation.animation.fling(velocity: flingVelocity).whenCompleteOrCancel(() {});
     }
   }
 }
@@ -199,7 +241,6 @@ class _PanelSnapData {
 void _scrollPanel(
   _PanelScrollPosition scrollPos, {
   double velocity,
-  ValueChanged<double> ballisticEnd,
 }) {
   final Simulation simulation = ClampingScrollSimulation(
     position: scrollPos.metadata.currentHeight,
@@ -209,8 +250,7 @@ void _scrollPanel(
 
   _PanelAnimation.clear();
 
-  _PanelAnimation.animation =
-      AnimationController.unbounded(vsync: scrollPos.context.vsync);
+  _PanelAnimation.animation = AnimationController.unbounded(vsync: scrollPos.context.vsync);
 
   double lastDelta = 0;
 
@@ -219,16 +259,12 @@ void _scrollPanel(
 
     lastDelta = _PanelAnimation.animation.value;
 
-    scrollPos.metadata.addPixels(currentDelta);
+    scrollPos.metadata.addPixels(currentDelta, shouldMultiply: false);
 
-    if ((velocity > 0 && scrollPos.metadata.isExpanded) ||
-        (velocity < 0 && scrollPos.metadata.isClosed)) {
+    if ((velocity > 0 && scrollPos.metadata.isExpanded) || (velocity < 0 && scrollPos.metadata.isClosed)) {
       // after dragging, if start or end reached
       velocity = _PanelAnimation.animation.velocity +
-          (scrollPos.physics.tolerance.velocity *
-              _PanelAnimation.animation.velocity.sign);
-
-      ballisticEnd?.call(velocity);
+          (scrollPos.physics.tolerance.velocity * _PanelAnimation.animation.velocity.sign);
 
       _PanelAnimation.animation.stop();
     }
@@ -244,11 +280,11 @@ Future<Null> _setPanelPosition(
   _SlidingPanelState panel, {
   @required double to,
   @required Duration duration,
+  bool shouldClamp = true,
 }) async {
   _PanelScrollPosition scrollPos = panel._scrollController._scrollPosition;
 
-  to = to.clamp(
-      scrollPos.metadata.closedHeight, scrollPos.metadata.expandedHeight);
+  if (shouldClamp) to = to._safeClamp(scrollPos.metadata.closedHeight, scrollPos.metadata.expandedHeight);
 
   double from = scrollPos.metadata.currentHeight;
 
@@ -278,52 +314,51 @@ Future<Null> _setPanelPosition(
   }
 }
 
-/// returns how much amount of the body part should scroll up in pixels when the panel slides.
+/// returns how much amount of the body part should scroll
+/// up in pixels when the panel slides.
 double _getParallaxSlideAmount(_SlidingPanelState panel) {
-  double amount = panel.widget.parallaxSlideAmount.clamp(0.0, 1.0);
-  if (amount > 0.0 && amount <= 1.0) {
-    double position = panel._controller.percentPosition(
-        panel._metadata.closedHeight, panel._metadata.expandedHeight);
-    double expandedHeight =
-        panel._metadata.totalHeight * panel._metadata.expandedHeight;
-    double closedHeight =
-        panel._metadata.totalHeight * panel._metadata.closedHeight;
+  final double amount = panel.widget.parallaxSlideAmount._safeClamp(0.0, 1.0);
+  final metadata = panel._metadata;
 
-    double parallax = (-(position *
-        (expandedHeight - closedHeight) *
-        panel.widget.parallaxSlideAmount));
+  double position = panel._controller.percentPosition(metadata.closedHeight, metadata.expandedHeight);
 
-    return (parallax.isNaN ? 0.0 : parallax);
-  }
-  return 0.0;
+  double coverage = metadata.totalHeight * metadata.expandedHeight;
+
+  double parallax = (-(position * coverage * amount));
+
+  return (parallax.isNaN ? 0.0 : parallax);
 }
 
-/// returns amount of opacity the backdrop should apply when panel slides.
+/// returns amount of opacity the backdrop should
+/// apply when panel slides.
 double _getBackdropOpacityAmount(_SlidingPanelState panel) {
   if (panel.widget.backdropConfig.effectInCollapsedMode) {
-    return (panel._controller.percentPosition(
-            panel._metadata.closedHeight, panel._metadata.expandedHeight) *
+    double opacity = (panel._controller.percentPosition(panel._metadata.closedHeight, panel._metadata.expandedHeight) *
         panel.widget.backdropConfig.opacity);
+
+    return (opacity.isNaN ? 0.0 : opacity);
   } else {
     if (panel._controller.currentPosition > panel._metadata.collapsedHeight) {
-      return (panel._controller.percentPosition(
-              panel._metadata.collapsedHeight, panel._metadata.expandedHeight) *
+      return (panel._controller.percentPosition(panel._metadata.collapsedHeight, panel._metadata.expandedHeight) *
           panel.widget.backdropConfig.opacity);
     }
     return 0.0;
   }
 }
 
-/// returns amount of color the backdrop should apply when panel slides.
+/// returns amount of color the backdrop should
+/// apply when panel slides.
 Color _getBackdropColor(_SlidingPanelState panel) {
   if (panel.widget.backdropConfig.draggableInClosed) {
+    // If closedHeight is not 0.0 and still currently it is,
+    // that's a dismissed panel. Don't allow dragging in it.
+    if ((panel._metadata.currentHeight == 0.0) && (panel._metadata.closedHeight != 0.0)) return null;
     return panel.widget.backdropConfig.shadowColor;
   }
 
   if (panel.widget.backdropConfig.effectInCollapsedMode) {
-    if (panel._controller.percentPosition(
-            panel._metadata.closedHeight, panel._metadata.expandedHeight) <=
-        0.0) return null;
+    if (panel._controller.percentPosition(panel._metadata.closedHeight, panel._metadata.expandedHeight) <= 0.0)
+      return null;
 
     return panel.widget.backdropConfig.shadowColor;
   } else {
@@ -336,17 +371,14 @@ Color _getBackdropColor(_SlidingPanelState panel) {
 
 /// returns amount of opacity to be applied to panel when sliding.
 double _getPanelOpacity(_SlidingPanelState panel) {
-  if (panel._metadata.isTwoStatePanel ||
-      (panel.widget.content.collapsedWidget.collapsedContent == null)) {
+  if (panel._metadata.isTwoStatePanel || (panel.widget.content.collapsedWidget.collapsedContent == null)) {
     return 1.0;
   }
 
   if (panel.widget.content.collapsedWidget.hideInExpandedOnly) {
-    return panel._controller.percentPosition(
-        panel._metadata.collapsedHeight, panel._metadata.expandedHeight);
+    return panel._controller.percentPosition(panel._metadata.collapsedHeight, panel._metadata.expandedHeight);
   } else {
-    return panel._controller.percentPosition(
-        panel._metadata.closedHeight, panel._metadata.collapsedHeight);
+    return panel._controller.percentPosition(panel._metadata.closedHeight, panel._metadata.collapsedHeight);
   }
 }
 
@@ -356,74 +388,77 @@ double _getCollapsedOpacity(_SlidingPanelState panel) {
 }
 
 void _dragPanel(
-  _PanelMetadata metadata, {
+  _SlidingPanelState panel, {
   double delta,
   bool shouldListScroll,
   bool isGesture,
   bool dragFromBody,
   VoidCallback scrollContentSuper,
 }) {
+  if ((panel._controller.currentState == PanelState.closed) && (panel.widget.panelClosedOptions.detachDragging)) return;
+
   if (isGesture) {
     // drag from body
     if (!dragFromBody) {
       return;
     }
+
+    panel._metadata._isBodyDrag.value = true;
+  } else {
+    panel._metadata._isBodyDrag.value = false;
   }
   // natural drag
 
   if (!shouldListScroll &&
-      (!(metadata.isClosed || metadata.isExpanded) ||
-          (metadata.isClosed && delta < 0) ||
-          (metadata.isExpanded && delta > 0))) {
-    if (metadata.isDraggable) {
-      if (!metadata.snapPanel) {
-        metadata.addPixels(-delta);
+      (!(panel._metadata.isClosed || panel._metadata.isExpanded) ||
+          (panel._metadata.isClosed && delta < 0) ||
+          (panel._metadata.isExpanded && delta > 0))) {
+    if (panel._metadata.isDraggable) {
+      if (panel._metadata.snapping == PanelSnapping.disabled) {
+        // dont multiply, otherwise panel will change states too fast
+        panel._metadata.addPixels(-delta, shouldMultiply: false);
       } else {
         // snapping is true
 
-        if (metadata.allowedDraggingTill
-            .containsKey(PanelDraggingDirection.ALLOW)) {
-          // no restriction
-          metadata.addPixels(-delta);
+        if (panel._metadata.allowedDraggingTill.containsKey(PanelDraggingDirection.ALLOW)) {
+          panel._metadata.addPixels(-delta, shouldMultiply: true);
         } else {
           // some restriction
 
           if (delta < 0.0) {
             // swiping upside
 
-            double temp = (((-delta) / metadata.totalHeight) *
-                metadata.dragExpandedHeight);
+            double temp = (((-delta) / panel._metadata.totalHeight) * panel._metadata.dragExpandedHeight);
 
-            if (temp + metadata.currentHeight > metadata.dragExpandedHeight) {
-              if (metadata.currentHeight != metadata.dragExpandedHeight) {
-                metadata.currentHeight = metadata.dragExpandedHeight;
+            if (temp + panel._metadata.currentHeight > panel._metadata.dragExpandedHeight) {
+              if (panel._metadata.currentHeight != panel._metadata.dragExpandedHeight) {
+                panel._metadata.currentHeight = panel._metadata.dragExpandedHeight;
               }
               // just scroll inner content
               scrollContentSuper();
             } else {
-              metadata.addPixels(-delta);
+              panel._metadata.addPixels(-delta, shouldMultiply: true);
 
-              if (metadata.currentHeight > metadata.dragExpandedHeight) {
-                metadata.currentHeight = metadata.dragExpandedHeight;
+              if (panel._metadata.currentHeight > panel._metadata.dragExpandedHeight) {
+                panel._metadata.currentHeight = panel._metadata.dragExpandedHeight;
               }
             }
           } else {
             // swiping downside
 
-            double temp =
-                ((delta / metadata.totalHeight) * metadata.dragClosedHeight);
+            double temp = ((delta / panel._metadata.totalHeight) * panel._metadata.dragClosedHeight);
 
-            if (metadata.currentHeight - temp < metadata.dragClosedHeight) {
-              if (metadata.currentHeight != metadata.dragClosedHeight) {
-                metadata.currentHeight = metadata.dragClosedHeight;
+            if (panel._metadata.currentHeight - temp < panel._metadata.dragClosedHeight) {
+              if (panel._metadata.currentHeight != panel._metadata.dragClosedHeight) {
+                panel._metadata.currentHeight = panel._metadata.dragClosedHeight;
               }
               // just scroll inner content
               scrollContentSuper();
             } else {
-              metadata.addPixels(-delta);
+              panel._metadata.addPixels(-delta, shouldMultiply: true);
 
-              if (metadata.currentHeight < metadata.dragClosedHeight) {
-                metadata.currentHeight = metadata.dragClosedHeight;
+              if (panel._metadata.currentHeight < panel._metadata.dragClosedHeight) {
+                panel._metadata.currentHeight = panel._metadata.dragClosedHeight;
               }
             }
           }
@@ -441,9 +476,8 @@ void _onPanelDragEnd(_SlidingPanelState panel, double primaryVelocity) {
   if (panel?._scrollController?._scrollPosition == null) {
     return;
   } else {
-    if (panel._metadata.isDraggable &&
-        panel.widget.backdropConfig.dragFromBody) {
-      if (!panel._metadata.snapPanel) {
+    if (panel._metadata.isDraggable && panel.widget.backdropConfig.dragFromBody) {
+      if (panel._metadata.snapping == PanelSnapping.disabled) {
         // no panel snapping, just scroll the panel
 
         _scrollPanel(
@@ -453,17 +487,13 @@ void _onPanelDragEnd(_SlidingPanelState panel, double primaryVelocity) {
       } else {
         // snap the panel
 
-        if (!((panel._metadata.allowedDraggingTill
-                .containsKey(PanelDraggingDirection.DOWN)) ||
-            (panel._metadata.allowedDraggingTill
-                .containsKey(PanelDraggingDirection.UP)))) {
-          double percent = ((panel._metadata.totalHeight *
-                  panel._metadata.snappingTriggerPercentage) /
-              100);
+        if (!((panel._metadata.allowedDraggingTill.containsKey(PanelDraggingDirection.DOWN)) ||
+            (panel._metadata.allowedDraggingTill.containsKey(PanelDraggingDirection.UP)))) {
+          double percent = ((panel._metadata.totalHeight * panel._metadata.snappingTriggerPercentage) / 100);
 
-          percent = percent.clamp(0.0, 750.0);
+          percent = percent._safeClamp(0.0, 750.0);
 
-          if (percent >= 0.0) {
+          if (percent > 0.0) {
             if (primaryVelocity.abs() <= percent) {
               _scrollPanel(
                 panel._scrollController._scrollPosition,
@@ -474,9 +504,17 @@ void _onPanelDragEnd(_SlidingPanelState panel, double primaryVelocity) {
           }
         }
 
+        if ((primaryVelocity.abs() == 0.0) && (panel._metadata.snapping == PanelSnapping.forced)) {
+          if (primaryVelocity.isNegative)
+            primaryVelocity = -0.1;
+          else
+            primaryVelocity = 0.1;
+        }
+
         _PanelSnapData snapData = _PanelSnapData(
           scrollPos: panel._scrollController._scrollPosition,
           dragVelocity: primaryVelocity,
+          snapping: panel.widget.snapping,
         );
 
         snapData.prepareSnapping();
@@ -491,8 +529,8 @@ void _onPanelDragEnd(_SlidingPanelState panel, double primaryVelocity) {
 
 void _handleBackdropTap(_SlidingPanelState panel) {
   if (panel._metadata.isTwoStatePanel) {
-    if (panel._metadata.currentHeight > panel._metadata.closedHeight &&
-        panel.widget.backdropConfig.closeOnTap) panel._controller.close();
+    if (panel._metadata.currentHeight > panel._metadata.closedHeight && panel.widget.backdropConfig.closeOnTap)
+      panel._controller.close();
   } else {
     if (panel.widget.backdropConfig.effectInCollapsedMode) {
       if (panel._metadata.currentHeight > panel._metadata.collapsedHeight &&
@@ -500,18 +538,16 @@ void _handleBackdropTap(_SlidingPanelState panel) {
         panel._controller.collapse();
         return;
       }
-      if (panel._metadata.currentHeight > panel._metadata.closedHeight &&
-          panel.widget.backdropConfig.closeOnTap) panel._controller.close();
+      if (panel._metadata.currentHeight > panel._metadata.closedHeight && panel.widget.backdropConfig.closeOnTap)
+        panel._controller.close();
     } else {
-      if (panel._metadata.currentHeight > panel._metadata.collapsedHeight &&
-          panel.widget.backdropConfig.collapseOnTap)
+      if (panel._metadata.currentHeight > panel._metadata.collapsedHeight && panel.widget.backdropConfig.collapseOnTap)
         panel._controller.collapse();
     }
   }
 }
 
-const Map<BackPressBehavior, BackPressBehavior>
-    _twoStateValidBackPressBehavior = {
+const Map<BackPressBehavior, BackPressBehavior> _twoStateValidBackPressBehavior = {
   BackPressBehavior.COLLAPSE_PERSIST: BackPressBehavior.PERSIST,
   BackPressBehavior.COLLAPSE_POP: BackPressBehavior.POP,
   BackPressBehavior.CLOSE_PERSIST: BackPressBehavior.PERSIST,
@@ -550,6 +586,10 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
         await panel._controller.collapse();
 
         if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
+          if (panel.isModal && panel._metadata.currentHeight == 0.0) {
+            return false;
+            // because popping will be done by a listener
+          }
           return true;
         }
         return false;
@@ -565,6 +605,10 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
         await panel._controller.close();
 
         if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
+          if (panel.isModal && panel._metadata.currentHeight == 0.0) {
+            return false;
+            // because popping will be done by a listener
+          }
           return true;
         }
         return false;
@@ -573,30 +617,88 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
     } else if (behavior == BackPressBehavior.COLLAPSE_CLOSE_PERSIST) {
       if (currentHeight > collapsedHeight) {
         await panel._controller.collapse();
-      } else if (currentHeight > closedHeight &&
-          currentHeight <= collapsedHeight) {
+      } else if (currentHeight > closedHeight && currentHeight <= collapsedHeight) {
         await panel._controller.close();
       }
       return false;
     } else if (behavior == BackPressBehavior.COLLAPSE_CLOSE_POP) {
-      if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
-        if (currentHeight > closedHeight) {
-          await panel._controller.close();
-        }
+      if (currentHeight == closedHeight) {
         return true;
-      } else {
-        if (currentHeight > collapsedHeight) {
-          await panel._controller.collapse();
+      }
+      if (currentHeight > collapsedHeight) {
+        await panel._controller.collapse();
+        return false;
+      }
+      if (currentHeight > closedHeight && currentHeight <= collapsedHeight) {
+        await panel._controller.close();
+      }
+      if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
+        if (panel.isModal && panel._metadata.currentHeight == 0.0) {
           return false;
-        } else if (currentHeight > closedHeight &&
-            currentHeight <= collapsedHeight) {
-          await panel._controller.close();
-          return false;
+          // because popping will be done by a listener
         }
         return true;
       }
+      return false;
     } else {
       return true;
     }
   }
+}
+
+InitialPanelState _decideInitStateForModal({_PanelMetadata metadata}) {
+  InitialPanelState decidedState = metadata.initialPanelState;
+
+  if (decidedState == InitialPanelState.expanded) {
+    // dont think about expanded
+    return InitialPanelState.expanded;
+  }
+
+  if (decidedState == InitialPanelState.dismissed) {
+    // dismissed is always considered as closed
+    decidedState = InitialPanelState.closed;
+  }
+
+  if (metadata.isTwoStatePanel) {
+    // handle cases for a two-state panel
+    if (decidedState == InitialPanelState.closed) {
+      if (metadata.closedHeight == 0.0) {
+        // because it doesn't show anything
+        return InitialPanelState.expanded;
+      }
+      // something can be shown in closed mode
+      return InitialPanelState.closed;
+    }
+    if (decidedState == InitialPanelState.collapsed) {
+      // two-state panels dont collapse
+      return InitialPanelState.expanded;
+    }
+    // it should expand now
+    return InitialPanelState.expanded;
+  } else {
+    if (decidedState == InitialPanelState.closed) {
+      if (metadata.closedHeight == 0.0) {
+        // because it doesn't show anything
+        // just assume, it should collapse
+        decidedState = InitialPanelState.collapsed;
+      }
+      // something can be shown in closed mode
+      return InitialPanelState.closed;
+    }
+    if (decidedState == InitialPanelState.collapsed) {
+      // collapse only if PanelCollapsedWidget given
+      if (metadata.collapsedHeight == 0.0) {
+        return InitialPanelState.expanded;
+      }
+      return InitialPanelState.collapsed;
+    }
+    // nothing left to check
+    return InitialPanelState.expanded;
+  }
+}
+
+extension _SafeClamping on num {
+  /// Same as [num.clamp], but first argument doesn't
+  /// need to be <= second number.
+  num _safeClamp(num num1, num num2) => num1 > num2 ? clamp(num2, num1) : clamp(num1, num2);
 }

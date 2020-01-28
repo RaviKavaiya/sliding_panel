@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:sliding_panel/sliding_panel.dart';
 
 class FooterAndScroll extends StatefulWidget {
@@ -43,17 +41,7 @@ class _MyListItemState extends State<MyListItem> {
 class _FooterAndScrollState extends State<FooterAndScroll> {
   PanelController pc;
 
-  bool shadowStart = false, shadowEnd = true;
-
-  static final List<String> food = [
-    'Pizza',
-    'Sandwich',
-    'Pasta',
-    'Punjabi',
-    'Burger',
-    'Shakes',
-    'Noodles'
-  ];
+  static final List<String> food = ['Pizza', 'Sandwich', 'Pasta', 'Punjabi', 'Burger', 'Shakes', 'Noodles'];
 
   List<MyListItem> foodItems;
 
@@ -69,45 +57,6 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
     );
 
     pc = PanelController();
-
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      // listen to scroll events
-      pc.scrollData.scrollController.addListener(_scrolled);
-      _scrolled();
-    });
-  }
-
-  void _scrolled() {
-    setState(() {
-      // determine whether to show shadows on each end
-      shadowStart = !pc.scrollData.atStart;
-      shadowEnd = !pc.scrollData.atEnd;
-    });
-  }
-
-  Widget _content(ScrollController scrollController) {
-    return ListView(
-      shrinkWrap: true,
-      controller: scrollController,
-      children: <Widget>[
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Material(
-              type: MaterialType.transparency,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12),
-                child: ListView(
-                  shrinkWrap: true,
-                  physics: ClampingScrollPhysics(),
-                  children: foodItems,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
   }
 
   @override
@@ -120,10 +69,7 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
         panelController: pc,
         backdropConfig: BackdropConfig(
           enabled: true,
-          closeOnTap: false,
-          dragFromBody: false,
-          collapseOnTap: false,
-          shadowColor: Colors.blue,
+          opacity: 0.25,
         ),
         decoration: PanelDecoration(
           margin: EdgeInsets.all(8),
@@ -132,37 +78,19 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
           ),
         ),
         content: PanelContent(
-          panelContent: (context, scrollController) {
-            return _content(scrollController);
-          },
+          panelContent: foodItems,
           headerWidget: PanelHeaderWidget(
-            headerContent: ListView(
-              physics: NeverScrollableScrollPhysics(),
-              shrinkWrap: true,
-              children: <Widget>[
-                Center(
-                  child: Container(
-                    padding: EdgeInsets.all(16),
-                    child: Text(
-                      'Selection',
-                      style: Theme.of(context).textTheme.headline,
-                    ),
-                  ),
-                ),
-              ],
+            headerContent: Container(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Selection',
+                style: Theme.of(context).textTheme.headline,
+              ),
             ),
             decoration: PanelDecoration(
               borderRadius: BorderRadius.all(Radius.circular(4)),
-              boxShadows: shadowStart
-                  ? const <BoxShadow>[
-                      BoxShadow(
-                        blurRadius: 4.0,
-                        color: Color.fromRGBO(0, 0, 0, 0.1),
-                        offset: Offset(0, 3),
-                      ),
-                    ]
-                  : null,
             ),
+            options: PanelHeaderOptions(centerTitle: true),
           ),
           footerWidget: PanelFooterWidget(
             footerContent: ButtonBar(
@@ -184,15 +112,6 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
             decoration: PanelDecoration(
               backgroundColor: Colors.grey[200],
               borderRadius: BorderRadius.all(Radius.circular(4)),
-              boxShadows: shadowEnd
-                  ? const <BoxShadow>[
-                      BoxShadow(
-                        blurRadius: 4.0,
-                        color: Color.fromRGBO(0, 0, 0, 0.1),
-                        offset: Offset(0, -3),
-                      ),
-                    ]
-                  : null,
             ),
           ),
           bodyContent: Center(
@@ -219,14 +138,13 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
           ),
         ),
         isTwoStatePanel: true,
-        isDraggable: false,
         size: PanelSize(closedHeight: 0.0, expandedHeight: 0.7),
         //
         maxWidth: PanelMaxWidth(landscape: 400, portrait: 350),
         // if the device comes to landscape mode, it can take maximum 400 pixels width.
         // if portrait, max it to 350.
         //
-        duration: Duration(milliseconds: 1500),
+        duration: Duration(milliseconds: 750),
         parallaxSlideAmount: 0.0,
       ),
     );
