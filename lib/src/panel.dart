@@ -657,11 +657,13 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         pinned: header.options.alwaysOnTop,
         floating: header.options.floating,
         snap: header.options.floating,
-        leading: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: header.options.iconsAlignment,
-          children: <Widget>[Flexible(child: header?.options?.leading ?? Container())],
-        ),
+        leading: header.options.leading == null
+            ? null
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: header.options.iconsAlignment,
+                children: <Widget>[Flexible(child: header?.options?.leading ?? Container())],
+              ),
         actions: [
           for (var action in header?.options?.trailing ?? [])
             Column(

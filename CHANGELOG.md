@@ -1,3 +1,7 @@
+## [1.0.2] - March 25, 2020
+
+- Fixed an issue that prevented the `headerContent` to take whole available Header width even if the `leading` was not specified. [#9](/../../issues/9)
+
 ## [1.0.1] - January 24, 2020
 
 `sliding_panel`'s first 2020 update comes with a bunch of changes, fixes and enhancements!
