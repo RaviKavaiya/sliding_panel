@@ -142,7 +142,9 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
 
   @override
   void dispose() {
-    _PanelAnimation.clear();
+    // No need to clear for modal panel, as the animation will ALWAYS
+    // need to be completed to pop the route
+    if (!metadata.isModal) _PanelAnimation.clear();
     super.dispose();
   }
 }

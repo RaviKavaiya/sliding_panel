@@ -567,6 +567,7 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
   }
 
   if (behavior == BackPressBehavior.POP) {
+    if (panel.isModal) await panel._controller.dismiss();
     return true;
   } else if (behavior == BackPressBehavior.PERSIST) {
     return false;
@@ -586,33 +587,31 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
         await panel._controller.collapse();
 
         if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
-          if (panel.isModal && panel._metadata.currentHeight == 0.0) {
-            return false;
-            // because popping will be done by a listener
-          }
+          if (panel.isModal) await panel._controller.dismiss();
+
           return true;
         }
         return false;
       }
+      if (panel.isModal) await panel._controller.dismiss();
       return true;
     } else if (behavior == BackPressBehavior.CLOSE_PERSIST) {
       if (currentHeight > closedHeight) {
         await panel._controller.close();
+        return false;
       }
-      return false;
     } else if (behavior == BackPressBehavior.CLOSE_POP) {
       if (currentHeight > closedHeight) {
         await panel._controller.close();
 
         if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
-          if (panel.isModal && panel._metadata.currentHeight == 0.0) {
-            return false;
-            // because popping will be done by a listener
-          }
+          if (panel.isModal) await panel._controller.dismiss();
+
           return true;
         }
         return false;
       }
+      if (panel.isModal) await panel._controller.dismiss();
       return true;
     } else if (behavior == BackPressBehavior.COLLAPSE_CLOSE_PERSIST) {
       if (currentHeight > collapsedHeight) {
@@ -623,6 +622,7 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
       return false;
     } else if (behavior == BackPressBehavior.COLLAPSE_CLOSE_POP) {
       if (currentHeight == closedHeight) {
+        if (panel.isModal) await panel._controller.dismiss();
         return true;
       }
       if (currentHeight > collapsedHeight) {
@@ -631,18 +631,20 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
       }
       if (currentHeight > closedHeight && currentHeight <= collapsedHeight) {
         await panel._controller.close();
-      }
-      if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
-        if (panel.isModal && panel._metadata.currentHeight == 0.0) {
-          return false;
-          // because popping will be done by a listener
+
+        if (poppingBehavior == PanelPoppingBehavior.POP_IMMEDIATELY) {
+          if (panel.isModal) await panel._controller.dismiss();
+
+          return true;
         }
-        return true;
       }
+
       return false;
     } else {
       return true;
     }
+
+    return true;
   }
 }
 

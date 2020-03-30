@@ -1,6 +1,18 @@
+## [1.0.3] - March 30, 2020
+
+- **New:** `useSafeArea` parameter, that allows you to wrap the panel inside the `SafeArea` parameter, in order to avoid notch and status bar of device!
+
+- **Fix:** Opening/closing a modal panel several times caused the app to freeze, making it unable to interact with either the panel or the content. [#12](https://github.com/RaviKavaiya/sliding_panel/issues/12)
+
+- **Fix:** An example caused height overflow.
+
+- **Fix:** The panel did not remember previous position when device was rotated. Now, it remembers and animates correctly. Also, doesn't send duplicate events to listeners when such situation arises. Though this feature works for all types of panels, this is more effective when using `autoSizing`.
+
+- **Deprecation:** The parameter `allowedDraggingTill` is now deprecated and should be avoided. It has some flaws that cause problems like panel not draggable, content not scrollable, etc. These issues won't be fixed and this feature may be removed in future releases. Apologies for that.
+
 ## [1.0.2] - March 25, 2020
 
-- Fixed an issue that prevented the `headerContent` to take whole available Header width even if the `leading` was not specified. [#9](/../../issues/9)
+- Fixed an issue that prevented the `headerContent` to take whole available Header width even if the `leading` was not specified. [#9](https://github.com/RaviKavaiya/sliding_panel/issues/9)
 
 ## [1.0.1] - January 24, 2020
 

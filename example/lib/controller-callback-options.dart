@@ -22,26 +22,28 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
   Widget _contentCollapsed() {
     return Container(
       padding: EdgeInsets.all(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              'Welcome',
-              style: Theme.of(context).textTheme.title,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Welcome',
+                style: Theme.of(context).textTheme.title,
+              ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: Text(
-              'Swipe up... or tap outside to close',
-              style: Theme.of(context).textTheme.subhead,
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Swipe up... or tap outside to close',
+                style: Theme.of(context).textTheme.subhead,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -6,7 +6,7 @@ class ModalPanelExample extends StatefulWidget {
   _ModalPanelExampleState createState() => _ModalPanelExampleState();
 }
 
-class _ModalPanelExampleState extends State<ModalPanelExample> with SingleTickerProviderStateMixin {
+class _ModalPanelExampleState extends State<ModalPanelExample> {
   PanelController pc;
 
   String selected = 'Open the panel, and then choose an item.';

@@ -239,6 +239,11 @@ class SlidingPanel extends StatefulWidget {
   ///
   /// Default : [PanelDraggingDirection.ALLOW] with
   /// value 0.0 (means allow the panel to be dragged)
+  @Deprecated('This feature is not stable. Though this works well under some circumstances, '
+      'it has some flaws that cause problems like panel not draggable, '
+      'content not scrollable, etc. So, use of this should be avoided.'
+      'This feature was deprecated since v1.0.3.'
+      'This feature may be removed in future releases.')
   final Map<PanelDraggingDirection, double> allowedDraggingTill;
 
   /// This helps you to execute specific actions when panel is closed.
@@ -252,6 +257,15 @@ class SlidingPanel extends StatefulWidget {
   ///
   /// To use all features, [PanelClosedOptions.detachDragging] needs to be true.
   final PanelClosedOptions panelClosedOptions;
+
+  /// Whether to wrap the entire panel into [SafeArea]. This adds necessary
+  /// paddings on all the sides of the panel in order to avoid OS intrusions
+  /// like notches and status bar.
+  ///
+  /// This is useful when using [showModalSlidingPanel].
+  ///
+  /// Default : false
+  final bool useSafeArea;
 
   /// A callback that is called whenever the panel is slided.
   ///
@@ -274,7 +288,8 @@ class SlidingPanel extends StatefulWidget {
     Key key,
     this.initialState = InitialPanelState.closed,
     this.animatedAppearing = false,
-    @required this.content,
+    @required
+        this.content,
     this.size = const PanelSize(),
     this.maxWidth = const PanelMaxWidth(),
     this.decoration = const PanelDecoration(),
@@ -292,8 +307,14 @@ class SlidingPanel extends StatefulWidget {
     this.isTwoStatePanel = false,
     this.backPressBehavior = BackPressBehavior.POP,
     this.panelPoppingBehavior = PanelPoppingBehavior.POP_AFTER_TAP,
-    this.allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
+    @Deprecated('This feature is not stable. Though this works well under some circumstances, '
+        'it has some flaws that cause problems like panel not draggable, '
+        'content not scrollable, etc. So, use of this should be avoided.'
+        'This feature was deprecated since v1.0.3.'
+        'This feature may be removed in future releases.')
+        this.allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
     this.panelClosedOptions = const PanelClosedOptions(),
+    this.useSafeArea = false,
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,
@@ -322,6 +343,7 @@ class SlidingPanel extends StatefulWidget {
     this.backPressBehavior = BackPressBehavior.POP,
     this.panelPoppingBehavior = PanelPoppingBehavior.POP_AFTER_TAP,
     this.panelClosedOptions = const PanelClosedOptions(),
+    this.useSafeArea = false,
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,

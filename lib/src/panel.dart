@@ -30,7 +30,6 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
   bool _shouldNotifyOnClose = true;
   bool _safeToPop = true;
-  bool _shouldListenForPop = false;
   bool _isInitialBuild = true;
 
   // getters
@@ -317,17 +316,17 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         }
         _shouldNotifyOnClose = true;
       }
+    }
 
-      if (isModal && _shouldListenForPop) {
-        // showModalSlidingPanel()
-        if (_metadata.currentHeight == 0.0) {
-          // panel really hidden (dismissed, or closed with 0.0)
-          if (_safeToPop && Navigator.of(context).canPop()) {
-            // canPop() used to ensure that the root route doesn't get popped.
-            Navigator.of(context).pop();
-          }
-          _safeToPop = true;
+    if (isModal) {
+      // showModalSlidingPanel()
+      if (_metadata.currentHeight == 0.0) {
+        // panel really hidden (dismissed, or closed with 0.0)
+        if (_safeToPop && Navigator.of(context).canPop()) {
+          // canPop() used to ensure that the root route doesn't get popped.
+          Navigator.of(context).pop();
         }
+        _safeToPop = true;
       }
     }
   }
@@ -352,11 +351,12 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
       _screenOrientation = queryData.orientation;
 
-      double previousPosition = _controller.percentPosition(0.0, _metadata.expandedHeight);
-      // panel may also be dismissed, thats why 0.0
+      double previousClosedHeight = _controller.sizeData.closedHeight;
+      double previousExpandedHeight = _controller.sizeData.expandedHeight;
+      double previousPanelHeight = _controller.currentPosition;
 
       if (autoSizing.headerSizeIsClosed || autoSizing.autoSizeCollapsed || autoSizing.autoSizeExpanded) {
-        SchedulerBinding.instance.addPostFrameCallback((x) {
+        SchedulerBinding.instance.addPostFrameCallback((x) async {
           _calculateHeights();
 
           // update durations again
@@ -369,16 +369,33 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
             _metadata._setInitialStateAgain();
             // set initial state, initially...
           } else {
-            double nextPosition = _controller.getPercentToPanelPosition(previousPosition, forDismissed: true);
+            double nextClosedHeight = _controller.sizeData.closedHeight;
+            double nextExpandedHeight = _controller.sizeData.expandedHeight;
 
-            _setPanelPosition(this,
-                to: nextPosition,
-                duration: _controller._getDuration(from: _metadata.currentHeight, to: nextPosition),
+            double nextPanelHeight = nextClosedHeight +
+                ((nextExpandedHeight - nextClosedHeight) / (previousExpandedHeight - previousClosedHeight)) *
+                    (previousPanelHeight - previousClosedHeight);
+
+            // remove original listener
+            _metadata._removeHeightListener(_panelHeightChangedListener);
+
+            // add temporary listener
+            _metadata._addHeightListener(_tempListener);
+
+            await _setPanelPosition(this,
+                to: nextPanelHeight,
+                duration: _controller._getDuration(from: nextClosedHeight, to: nextExpandedHeight),
                 shouldClamp: false);
+
+            // remove temporary listener
+            _metadata._removeHeightListener(_tempListener);
+
+            // add original listener
+            _metadata._addHeightListener(_panelHeightChangedListener);
           }
         });
       } else {
-        SchedulerBinding.instance.addPostFrameCallback((x) {
+        SchedulerBinding.instance.addPostFrameCallback((x) async {
           _calculateHeaderHeight();
           _calculateFooterHeight();
 
@@ -392,12 +409,29 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
             _metadata._setInitialStateAgain();
             // set initial state, initially...
           } else {
-            double nextPosition = _controller.getPercentToPanelPosition(previousPosition, forDismissed: true);
+            double nextClosedHeight = _controller.sizeData.closedHeight;
+            double nextExpandedHeight = _controller.sizeData.expandedHeight;
 
-            _setPanelPosition(this,
-                to: nextPosition,
-                duration: _controller._getDuration(from: _metadata.currentHeight, to: nextPosition),
+            double nextPanelHeight = nextClosedHeight +
+                ((nextExpandedHeight - nextClosedHeight) / (previousExpandedHeight - previousClosedHeight)) *
+                    (previousPanelHeight - previousClosedHeight);
+
+            // remove original listener
+            _metadata._removeHeightListener(_panelHeightChangedListener);
+
+            // add temporary listener
+            _metadata._addHeightListener(_tempListener);
+
+            await _setPanelPosition(this,
+                to: nextPanelHeight,
+                duration: _controller._getDuration(from: nextClosedHeight, to: nextExpandedHeight),
                 shouldClamp: false);
+
+            // remove temporary listener
+            _metadata._removeHeightListener(_tempListener);
+
+            // add original listener
+            _metadata._addHeightListener(_panelHeightChangedListener);
           }
         });
       }
@@ -406,33 +440,35 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         // if the panel is a modal
         // i.e., from showModalSlidingPanel()
 
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
+        SchedulerBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             // decide the state in which the panel will open
             InitialPanelState decidedState = _decideInitStateForModal(metadata: _metadata);
 
-            // animate the panel, wait for it
+            // animate the panel.
+            // Don't wait for the animation to complete here,
+            // because if the panel is animating and user stops it by dragging,
+            // the wait will never be over.
             switch (decidedState) {
               case InitialPanelState.dismissed:
-                await _controller.expand();
+                _controller.expand();
                 break;
               case InitialPanelState.closed:
-                await _controller.close();
+                _controller.close();
                 break;
               case InitialPanelState.collapsed:
-                await _controller.collapse();
+                _controller.collapse();
                 break;
               case InitialPanelState.expanded:
-                await _controller.expand();
+                _controller.expand();
                 break;
             }
-
-            // start listening for panel changes
-            _shouldListenForPop = true;
 
             widget._panelModalRoute.popped.then((_) {
               _safeToPop = false;
               // popped by parent, dismiss the panel
+              // this comes into picure when Navigator.of(context).pop(something)
+              // is called.
               if (mounted) _controller.dismiss();
             });
           }
@@ -614,7 +650,9 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
   @override
   void dispose() {
     _scrollController?.dispose();
-    _PanelAnimation.clear();
+    // No need to clear for modal panel, as the animation will ALWAYS
+    // need to be completed to pop the route
+    if (!isModal) _PanelAnimation.clear();
     super.dispose();
   }
 
@@ -896,7 +934,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    final panelChild = WillPopScope(
       onWillPop: () => _decidePop(this),
       child: LayoutBuilder(
         builder: (context, BoxConstraints constraints) {
@@ -909,5 +947,9 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         },
       ),
     );
+
+    if (widget.useSafeArea) return SafeArea(child: panelChild);
+
+    return panelChild;
   }
 }

@@ -6,7 +6,7 @@ class DismissibleExample extends StatefulWidget {
   _DismissibleExampleState createState() => _DismissibleExampleState();
 }
 
-class _DismissibleExampleState extends State<DismissibleExample> with SingleTickerProviderStateMixin {
+class _DismissibleExampleState extends State<DismissibleExample> {
   PanelController pc;
   PanelState currentState = PanelState.closed;
 
