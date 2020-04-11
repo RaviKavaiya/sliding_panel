@@ -1,3 +1,11 @@
+## [1.0.4] - April 11, 2020
+
+- **Fix:** `BackPressBehavior.CLOSE_PERSIST` was closing the parent route. Now it works as expected.
+
+- **Breaking change:** `BackPressBehavior.CLOSE_PERSIST` is now also valid for two-state panels.
+
+- **Breaking change:** `BackPressBehavior.COLLAPSE_CLOSE_PERSIST` is now considered as `BackPressBehavior.CLOSE_PERSIST` for two-state panels.
+
 ## [1.0.3] - March 30, 2020
 
 - **New:** `useSafeArea` parameter, that allows you to wrap the panel inside the `SafeArea` parameter, in order to avoid notch and status bar of device!

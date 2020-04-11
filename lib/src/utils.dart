@@ -550,8 +550,7 @@ void _handleBackdropTap(_SlidingPanelState panel) {
 const Map<BackPressBehavior, BackPressBehavior> _twoStateValidBackPressBehavior = {
   BackPressBehavior.COLLAPSE_PERSIST: BackPressBehavior.PERSIST,
   BackPressBehavior.COLLAPSE_POP: BackPressBehavior.POP,
-  BackPressBehavior.CLOSE_PERSIST: BackPressBehavior.PERSIST,
-  BackPressBehavior.COLLAPSE_CLOSE_PERSIST: BackPressBehavior.PERSIST,
+  BackPressBehavior.COLLAPSE_CLOSE_PERSIST: BackPressBehavior.CLOSE_PERSIST,
   BackPressBehavior.COLLAPSE_CLOSE_POP: BackPressBehavior.CLOSE_POP,
 };
 
@@ -598,8 +597,8 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
     } else if (behavior == BackPressBehavior.CLOSE_PERSIST) {
       if (currentHeight > closedHeight) {
         await panel._controller.close();
-        return false;
       }
+      return false;
     } else if (behavior == BackPressBehavior.CLOSE_POP) {
       if (currentHeight > closedHeight) {
         await panel._controller.close();
@@ -643,8 +642,6 @@ Future<bool> _decidePop(_SlidingPanelState panel) async {
     } else {
       return true;
     }
-
-    return true;
   }
 }
 

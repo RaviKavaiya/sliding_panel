@@ -539,7 +539,7 @@ class PanelAutoSizing {
 ///
 /// For normal panels, any of these can be used.
 /// But for Two-state panels, these behaviors can be used:
-/// [POP], [PERSIST], [CLOSE_POP].
+/// [POP], [PERSIST], [CLOSE_POP], [CLOSE_PERSIST].
 ///
 /// Default : [POP]
 enum BackPressBehavior {
@@ -582,8 +582,6 @@ enum BackPressBehavior {
   ///
   /// After closed, if the user taps back button again,
   /// the behavior would be [PERSIST]. i.e., route will not pop.
-  ///
-  /// If this is provided for two-state panels, [PERSIST] is applied instead.
   CLOSE_PERSIST,
 
   /// If the panel's height is more than [PanelSize.closedHeight],
@@ -603,7 +601,7 @@ enum BackPressBehavior {
   /// After closed, if the user taps back button again,
   /// the behavior would be [PERSIST]. i.e., route will not pop.
   ///
-  /// If this is provided for two-state panels, [PERSIST] is applied instead.
+  /// If this is provided for two-state panels, [CLOSE_PERSIST] is applied instead.
   COLLAPSE_CLOSE_PERSIST,
 
   /// If the panel's height is more than [PanelSize.collapsedHeight],
