@@ -21,6 +21,8 @@ class _PanelMetadata {
 
   double dragMultiplier;
 
+  bool useSafeArea;
+
   final InitialPanelState initialPanelState;
 
   Map<PanelDraggingDirection, double> allowedDraggingTill;
@@ -42,6 +44,7 @@ class _PanelMetadata {
     @required this.animatedAppearing,
     @required this.snappingTriggerPercentage,
     @required this.dragMultiplier,
+    @required this.useSafeArea,
     @required this.initialPanelState,
     @required this.allowedDraggingTill,
     @required this.listener,

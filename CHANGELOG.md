@@ -1,3 +1,12 @@
+## [1.0.5] - April 13, 2020
+
+- **Fixes:** [#14](https://github.com/RaviKavaiya/sliding_panel/issues/14)
+
+- **Change:** In this release, the way the `useSafeArea` parameter works, is changed. Instead of wrapping whole panel in `SafeArea`, only top, left and right padding will be applied as necessary.
+
+    - That means from now, `PanelContent.bodyContent`, `BackdropConfig`'s shadow will be un-affected by `useSafeArea` parameter and will get full screen available. 
+
+
 ## [1.0.4] - April 11, 2020
 
 - **Fix:** `BackPressBehavior.CLOSE_PERSIST` was closing the parent route. Now it works as expected.

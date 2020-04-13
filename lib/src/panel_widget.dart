@@ -258,11 +258,16 @@ class SlidingPanel extends StatefulWidget {
   /// To use all features, [PanelClosedOptions.detachDragging] needs to be true.
   final PanelClosedOptions panelClosedOptions;
 
-  /// Whether to wrap the entire panel into [SafeArea]. This adds necessary
-  /// paddings on all the sides of the panel in order to avoid OS intrusions
-  /// like notches and status bar.
+  /// If true, the panel will have necessary top, left and right padding
+  /// added in order to avoid OS intrusions like nothces and status bar.
   ///
-  /// This is useful when using [showModalSlidingPanel].
+  /// This is much like [SafeArea]. This does NOT apply padding to the
+  /// [PanelContent.bodyContent]. This allows us for example, to have the
+  /// panel avoid intrusions while still allowing bodyContent to occupy
+  /// whole available space. The [backdropConfig]'s shadow is also not
+  /// affected by this. So, you always get full-screen shadow.
+  ///
+  /// This can be used on any type of panels.
   ///
   /// Default : false
   final bool useSafeArea;
