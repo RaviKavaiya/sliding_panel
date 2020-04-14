@@ -34,6 +34,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
   // Variables for applying padding to the panel
   double topPadding = 0.0;
+  double bottomPadding = 0.0;
   double leftPadding = 0.0;
   double rightPadding = 0.0;
 
@@ -97,7 +98,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
       animatedAppearing: widget.animatedAppearing,
       snappingTriggerPercentage: widget.snappingTriggerPercentage,
       dragMultiplier: widget.dragMultiplier._safeClamp(1.0, 5.0),
-      useSafeArea: widget.useSafeArea,
+      safeAreaConfig: widget.safeAreaConfig,
       initialPanelState: widget.initialState,
       allowedDraggingTill: _getAllowedDraggingTill(widget.allowedDraggingTill),
       listener: _panelHeightChangedListener,
@@ -353,30 +354,42 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
   void _applyPaddings() {
     SchedulerBinding.instance.addPostFrameCallback((x) {
       setState(() {
-        if (_metadata.useSafeArea) {
-          leftPadding = MediaQuery.of(context).padding.left;
-          rightPadding = MediaQuery.of(context).padding.right;
+        if (_metadata.safeAreaConfig != null) {
+          if (_metadata?.safeAreaConfig?.bottom ?? false)
+            bottomPadding = MediaQuery.of(context).padding.bottom;
+          else
+            bottomPadding = 0.0;
 
-          double tempTopPadding = MediaQuery.of(context).padding.top;
+          if (_metadata?.safeAreaConfig?.sides ?? false) {
+            leftPadding = MediaQuery.of(context).padding.left;
+            rightPadding = MediaQuery.of(context).padding.right;
+          } else
+            leftPadding = rightPadding = 0.0;
 
-          // If AVAILABLE height is more than screen height, just apply padding
-          if (_metadata.totalHeight >= _metadata.constrainedHeight) {
-            topPadding = MediaQuery.of(context).padding.top;
-          } else {
-            if ((_metadata.constrainedHeight - tempTopPadding) > _metadata.totalHeight) {
-              // If removing padding space from screen's height would exceed
-              // available height, apply no padding
-              topPadding = 0.0;
+          if (_metadata?.safeAreaConfig?.top ?? false) {
+            double tempTopPadding = MediaQuery.of(context).padding.top;
+
+            // If AVAILABLE height is more than screen height, just apply padding
+            if (_metadata.totalHeight >= _metadata.constrainedHeight) {
+              topPadding = MediaQuery.of(context).padding.top;
             } else {
-              // apply partial padding
-              // apply in a manner, which is:
-              // min(actual padding, available height - (screen's height - actual padding))
-              topPadding =
-                  min(tempTopPadding, (_metadata.totalHeight - (_metadata.constrainedHeight - tempTopPadding)).abs());
+              if ((_metadata.constrainedHeight - tempTopPadding) > _metadata.totalHeight) {
+                // If removing padding space from screen's height would exceed
+                // available height, apply no padding
+                topPadding = 0.0;
+              } else {
+                // apply partial padding
+                // apply in a manner, which is:
+                // min(actual padding, available height - (screen's height - actual padding))
+                topPadding =
+                    min(tempTopPadding, (_metadata.totalHeight - (_metadata.constrainedHeight - tempTopPadding)).abs());
+              }
             }
-          }
-        } else
-          topPadding = leftPadding = rightPadding = 0.0;
+          } else
+            topPadding = 0.0;
+        } else {
+          topPadding = bottomPadding = leftPadding = rightPadding = 0.0;
+        }
       });
     });
   }
@@ -580,8 +593,8 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
       rebuild();
     }
 
-    if (oldWidget.useSafeArea != widget.useSafeArea) {
-      _metadata.useSafeArea = widget.useSafeArea;
+    if (oldWidget.safeAreaConfig != widget.safeAreaConfig) {
+      _metadata.safeAreaConfig = widget.safeAreaConfig;
       _applyPaddings();
     }
 
@@ -724,6 +737,9 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
                 border: header.decoration.border,
                 borderRadius: header.decoration.borderRadius,
                 color: header.decoration.backgroundColor ?? Theme.of(context).canvasColor,
+                gradient: header.decoration.gradient,
+                image: header.decoration.image,
+                backgroundBlendMode: header.decoration.backgroundBlendMode,
               ),
               padding: header.decoration.padding,
               margin: header.decoration.margin,
@@ -829,6 +845,9 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
             borderRadius: footer.decoration.borderRadius,
             boxShadow: footer.decoration.boxShadows,
             color: footer.decoration.backgroundColor ?? Theme.of(context).canvasColor,
+            gradient: footer.decoration.gradient,
+            image: footer.decoration.image,
+            backgroundBlendMode: footer.decoration.backgroundBlendMode,
           ),
           padding: footer.decoration.padding,
           margin: footer.decoration.margin,
@@ -895,8 +914,6 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
   Widget get _offStagedContent => Offstage(
         child: Container(
           key: _keyContent,
-//          margin: decoration.margin,
-//          padding: decoration.padding,
           decoration: BoxDecoration(border: decoration.border),
           child: ListView(
             shrinkWrap: true,
@@ -932,7 +949,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         child: Opacity(
           opacity: _getBackdropOpacityAmount(this),
           child: Container(
-            height: _metadata.constrainedHeight + topPadding,
+            height: _metadata.constrainedHeight + topPadding + bottomPadding,
             width: _metadata.constrainedWidth,
             // setting color null enables Gesture recognition when collapsed / closed
             color: _getBackdropColor(this),
@@ -953,6 +970,9 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
                 borderRadius: decoration.borderRadius,
                 boxShadow: decoration.boxShadows,
                 color: decoration.backgroundColor ?? Theme.of(context).canvasColor,
+                gradient: decoration.gradient,
+                image: decoration.image,
+                backgroundBlendMode: decoration.backgroundBlendMode,
               )
             : null,
         child: _mainPanel,
@@ -984,7 +1004,10 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         else
           Container(),
 
-        _panelContent,
+        Container(
+          margin: EdgeInsets.only(bottom: bottomPadding),
+          child: _panelContent,
+        ),
       ],
     );
   }
@@ -1003,6 +1026,8 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
           maxWidthPortrait = min(_metadata.constrainedWidth - leftPadding - rightPadding, widget.maxWidth.portrait);
           maxWidthLandscape = min(_metadata.constrainedWidth - leftPadding - rightPadding, widget.maxWidth.landscape);
+
+          _metadata.constrainedHeight -= bottomPadding;
 
           if (_paddingApplyNeeded) {
             _paddingApplyNeeded = false;

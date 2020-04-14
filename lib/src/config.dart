@@ -244,6 +244,8 @@ class PanelSize {
 }
 
 /// The decoration to be applied on the [PanelContent].
+/// To see detailed description of properties, please see [BoxDecoration],
+/// as most of the properties are derived from it.
 class PanelDecoration {
   /// The border to render around the panel.
   final Border border;
@@ -267,6 +269,22 @@ class PanelDecoration {
   /// Apply margin around the panel.
   final EdgeInsets margin;
 
+  /// A gradient to use when filling the panel.
+  ///
+  /// If this is specified, [backgroundColor] has no effect.
+  final Gradient gradient;
+
+  /// An image to paint above the [backgroundColor] or [gradient].
+  final DecorationImage image;
+
+  /// The blend mode applied to the [backgroundColor] or [gradient] of panel.
+  ///
+  /// If no [backgroundBlendMode] is provided then the default painting blend
+  /// mode is used.
+  ///
+  /// If no [backgroundColor] or [gradient] is provided then this  has no impact.
+  final BlendMode backgroundBlendMode;
+
   const PanelDecoration({
     this.border,
     this.borderRadius,
@@ -279,6 +297,9 @@ class PanelDecoration {
     this.backgroundColor,
     this.padding,
     this.margin,
+    this.gradient,
+    this.image,
+    this.backgroundBlendMode,
   });
 }
 
@@ -732,4 +753,43 @@ class PanelClosedOptions {
 
   const PanelClosedOptions(
       {this.detachDragging = false, this.resetScrolling = false, this.sendResult, this.throwResult});
+}
+
+/// Apply necessary top, bottom and sides (left and right) padding to
+/// the panel to avoid OS intrusions like notch, status bar and nav-bar.
+///
+/// This is much like [SafeArea]. This does NOT apply padding to the
+/// [PanelContent.bodyContent]. This allows us for example, to have the
+/// panel avoid intrusions while still allowing bodyContent to occupy
+/// whole available space. The [BackdropConfig]'s shadow is also not
+/// affected by this. So, you always get full-screen shadow.
+///
+/// This can be used on any type of panel.
+///
+/// Default : No padding is applied.
+class SafeAreaConfig {
+  /// Whether to apply padding on top side of panel.
+  final bool top;
+
+  /// Whether to apply padding on bottom side of panel.
+  final bool bottom;
+
+  /// Whether to apply padding on both sides (left and right) of panel.
+  final bool sides;
+
+  /// Apply no padding.
+  ///
+  /// This is the default.
+  const SafeAreaConfig({
+    this.top = false,
+    this.bottom = false,
+    this.sides = false,
+  });
+
+  /// Apply padding on all sides:
+  /// top, bottom, left and right.
+  const SafeAreaConfig.all()
+      : this.top = true,
+        this.bottom = true,
+        this.sides = true;
 }

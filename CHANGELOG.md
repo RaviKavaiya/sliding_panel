@@ -1,3 +1,11 @@
+## [1.1.1] - April 14, 2020
+
+- **Breaking change:** The parameter `useSafeArea` is now removed.
+
+- **New:** Parameter `safeAreaConfig` now lets you choose the directions in which to apply the padding to avoid notch, status bar and **nav-bar** as well.
+
+- **New:** `gradient`, `backgroundBlendMode` and `image` can now be provided to `PanelDecoration`.
+
 ## [1.0.5] - April 13, 2020
 
 - **Fixes:** [#14](https://github.com/RaviKavaiya/sliding_panel/issues/14)

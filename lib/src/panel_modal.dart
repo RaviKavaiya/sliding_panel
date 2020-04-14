@@ -110,7 +110,7 @@ Future<T> showModalSlidingPanel<T>(
             backPressBehavior: _panel.backPressBehavior,
             panelPoppingBehavior: _panel.panelPoppingBehavior,
             panelClosedOptions: _panel.panelClosedOptions,
-            useSafeArea: _panel.useSafeArea,
+            safeAreaConfig: _panel.safeAreaConfig,
             onPanelSlide: _panel.onPanelSlide,
             onPanelStateChanged: _panel.onPanelStateChanged,
             onThrowResult: _panel.onThrowResult,

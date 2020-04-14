@@ -23,6 +23,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
     return Container(
       padding: EdgeInsets.all(12),
       child: SingleChildScrollView(
+        physics: NeverScrollableScrollPhysics(),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.start,

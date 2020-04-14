@@ -258,19 +258,19 @@ class SlidingPanel extends StatefulWidget {
   /// To use all features, [PanelClosedOptions.detachDragging] needs to be true.
   final PanelClosedOptions panelClosedOptions;
 
-  /// If true, the panel will have necessary top, left and right padding
-  /// added in order to avoid OS intrusions like nothces and status bar.
+  /// Apply necessary top, bottom and sides (left and right) padding to
+  /// the panel to avoid OS intrusions like notch, status bar and nav-bar.
   ///
   /// This is much like [SafeArea]. This does NOT apply padding to the
   /// [PanelContent.bodyContent]. This allows us for example, to have the
   /// panel avoid intrusions while still allowing bodyContent to occupy
-  /// whole available space. The [backdropConfig]'s shadow is also not
+  /// whole available space. The [BackdropConfig]'s shadow is also not
   /// affected by this. So, you always get full-screen shadow.
   ///
-  /// This can be used on any type of panels.
+  /// This can be used on any type of panel.
   ///
-  /// Default : false
-  final bool useSafeArea;
+  /// Default : No padding is applied.
+  final SafeAreaConfig safeAreaConfig;
 
   /// A callback that is called whenever the panel is slided.
   ///
@@ -319,7 +319,7 @@ class SlidingPanel extends StatefulWidget {
         'This feature may be removed in future releases.')
         this.allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
     this.panelClosedOptions = const PanelClosedOptions(),
-    this.useSafeArea = false,
+    this.safeAreaConfig = const SafeAreaConfig(),
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,
@@ -348,7 +348,7 @@ class SlidingPanel extends StatefulWidget {
     this.backPressBehavior = BackPressBehavior.POP,
     this.panelPoppingBehavior = PanelPoppingBehavior.POP_AFTER_TAP,
     this.panelClosedOptions = const PanelClosedOptions(),
-    this.useSafeArea = false,
+    this.safeAreaConfig = const SafeAreaConfig(),
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,
