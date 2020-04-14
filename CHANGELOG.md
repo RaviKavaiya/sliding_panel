@@ -1,3 +1,7 @@
+## [1.1.2] - April 14, 2020
+
+- Fixed a bug that caused the `safeAreaConfig` to not work properly when giving `margin` to the `PanelDecoration`.
+
 ## [1.1.1] - April 14, 2020
 
 - **Breaking change:** The parameter `useSafeArea` is now removed.

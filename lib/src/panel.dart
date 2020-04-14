@@ -355,6 +355,14 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
     SchedulerBinding.instance.addPostFrameCallback((x) {
       setState(() {
         if (_metadata.safeAreaConfig != null) {
+          // Initialize with 0.
+          topPadding = bottomPadding = leftPadding = rightPadding = 0.0;
+
+          // Additional padding required.
+          double additionalTopPadding = 0.0;
+          double additionalLeftPadding = 0.0;
+          double additionalRightPadding = 0.0;
+
           if (_metadata?.safeAreaConfig?.bottom ?? false)
             bottomPadding = MediaQuery.of(context).padding.bottom;
           else
@@ -363,6 +371,16 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
           if (_metadata?.safeAreaConfig?.sides ?? false) {
             leftPadding = MediaQuery.of(context).padding.left;
             rightPadding = MediaQuery.of(context).padding.right;
+
+            // If left margin is given, add it to right padding
+            if ((decoration?.margin?.left ?? 0) > 0.0) {
+              additionalRightPadding += decoration.margin.left;
+            }
+
+            // If right margin is given, add it to left padding
+            if ((decoration?.margin?.right ?? 0) > 0.0) {
+              additionalLeftPadding += decoration.margin.right;
+            }
           } else
             leftPadding = rightPadding = 0.0;
 
@@ -385,8 +403,22 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
                     min(tempTopPadding, (_metadata.totalHeight - (_metadata.constrainedHeight - tempTopPadding)).abs());
               }
             }
+
+            // If bottom margin is given, add it to top padding
+            if ((decoration?.margin?.bottom ?? 0) > 0.0) {
+              additionalTopPadding += decoration.margin.bottom;
+            }
+
+            // If top margin is given, add it to top padding
+            if ((decoration?.margin?.top ?? 0) > 0.0) {
+              additionalTopPadding += decoration.margin.top;
+            }
           } else
             topPadding = 0.0;
+
+          topPadding += additionalTopPadding;
+          leftPadding += additionalLeftPadding;
+          rightPadding += additionalRightPadding;
         } else {
           topPadding = bottomPadding = leftPadding = rightPadding = 0.0;
         }
