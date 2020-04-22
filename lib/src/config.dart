@@ -766,7 +766,7 @@ class PanelClosedOptions {
 ///
 /// This can be used on any type of panel.
 ///
-/// Default : No padding is applied.
+/// Default : [SafeAreaConfig.all].
 class SafeAreaConfig {
   /// Whether to apply padding on top side of panel.
   final bool top;
@@ -777,19 +777,35 @@ class SafeAreaConfig {
   /// Whether to apply padding on both sides (left and right) of panel.
   final bool sides;
 
+  /// If true, padding derived from [MediaQuery] will NOT be added to the
+  /// [PanelContent]. Some widgets like [ListTile] add the padding automatically.
+  /// Set this to true to prevent them adding the extra space.
+  ///
+  /// This option comes handy when you are opting to add padding to all
+  /// sides (e.g., top=bottom=sides=true), the necessary paddings are
+  /// already applied. So, there is no need for extra padding to be apploed
+  /// to the content. So, set this to true in such cases.
+  final bool removePaddingFromContent;
+
   /// Apply no padding.
   ///
-  /// This is the default.
+  /// Also, don't remove padding from the content.
   const SafeAreaConfig({
     this.top = false,
     this.bottom = false,
     this.sides = false,
+    this.removePaddingFromContent = false,
   });
 
   /// Apply padding on all sides:
   /// top, bottom, left and right.
-  const SafeAreaConfig.all()
+  ///
+  /// Also, don't remove padding from the content.
+  ///
+  /// This is the default.
+  const SafeAreaConfig.all({bool removePaddingFromContent})
       : this.top = true,
         this.bottom = true,
-        this.sides = true;
+        this.sides = true,
+        this.removePaddingFromContent = removePaddingFromContent ?? false;
 }

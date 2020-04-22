@@ -138,7 +138,8 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
           ),
         ),
         isTwoStatePanel: true,
-        size: PanelSize(closedHeight: 0.0, expandedHeight: 0.7),
+        size: PanelSize(closedHeight: 0.0, expandedHeight: 0.9),
+        autoSizing: PanelAutoSizing(autoSizeExpanded: true),
         //
         maxWidth: PanelMaxWidth(landscape: 400, portrait: 350),
         // if the device comes to landscape mode, it can take maximum 400 pixels width.

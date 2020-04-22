@@ -58,6 +58,7 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                 panel: (context) {
                   return SlidingPanel(
                     panelController: pc,
+                    safeAreaConfig: SafeAreaConfig.all(removePaddingFromContent: true),
                     backdropConfig: BackdropConfig(enabled: true),
                     isTwoStatePanel: true,
                     snapping: PanelSnapping.forced,
@@ -70,38 +71,41 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                     //
                     content: PanelContent(
                       panelContent: [
-                        Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            title: Text('SlidingPanel'),
-                            onTap: () {
-                              Navigator.of(context).pop('SlidingPanel :)');
-                              // looks familiar, right?
-                            },
-                          ),
+                        ListTile(
+                          title: Text('SlidingPanel'),
+                          onTap: () {
+                            Navigator.of(context).pop('SlidingPanel :)');
+                            // looks familiar, right?
+                          },
                         ),
-                        Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            title: Text('Others'),
-                            onTap: () {
-                              Navigator.of(context).pop('others ???');
-                            },
-                          ),
+                        ListTile(
+                          title: Text('showModalBottomSheet'),
+                          onTap: () {
+                            Navigator.of(context).pop('showModalBottomSheet');
+                          },
                         ),
-                        Material(
-                          type: MaterialType.transparency,
-                          child: ListTile(
-                            title: Text('Nothing'),
-                            onTap: () {
-                              Navigator.of(context).pop('nothing :(');
-                            },
-                          ),
+                        ListTile(
+                          title: Text('Others'),
+                          onTap: () {
+                            Navigator.of(context).pop('Others ???');
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Nothing'),
+                          onTap: () {
+                            Navigator.of(context).pop('Nothing :(');
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Just close THIS!!!'),
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
                         ),
                       ],
                       headerWidget: PanelHeaderWidget(
                         headerContent: Text(
-                          'You like ...',
+                          'For choice selection, you prefer...',
                           style: Theme.of(context).textTheme.headline,
                         ),
                         options: PanelHeaderOptions(
@@ -110,6 +114,7 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                           forceElevated: true,
                           primary: false,
                         ),
+                        onTap: () => pc.currentState == PanelState.closed ? pc.expand() : pc.close(),
                         decoration: PanelDecoration(padding: EdgeInsets.all(16)),
                       ),
                     ),

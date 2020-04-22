@@ -64,7 +64,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         Padding(
           padding: const EdgeInsets.all(24.0),
           child: FlutterLogo(
-            size: 96,
+            size: 108,
           ),
         ),
         Container(
@@ -268,14 +268,17 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         parallaxSlideAmount: 0.0,
         snapping: snapForced ? PanelSnapping.forced : snap ? PanelSnapping.enabled : PanelSnapping.disabled,
         isDraggable: draggable,
-        decoration: PanelDecoration(backgroundColor: Colors.orange[200], boxShadows: [
-          BoxShadow(
-            blurRadius: 8.0,
-            color: Colors.orange[400].withOpacity(0.75),
-            spreadRadius: 2,
-            offset: Offset(0, -3),
-          ),
-        ]),
+        decoration: PanelDecoration(
+          backgroundColor: Colors.orange[200],
+          boxShadows: [
+            BoxShadow(
+              blurRadius: 16.0,
+              color: Colors.orange[400].withOpacity(0.75),
+              spreadRadius: 4,
+              offset: Offset(0, -3),
+            ),
+          ],
+        ),
       ),
     );
   }

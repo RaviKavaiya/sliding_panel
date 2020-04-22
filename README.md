@@ -1,17 +1,19 @@
 # sliding_panel
 
-A Flutter slidable widget that provides an easy to use configuration. Just as you want it!
+The most customisable bottom sliding panel you can find on [**pub.dev**](https://pub.dev/packages/sliding_panel). Just as you want it!
 
 
 <br>
 
-<img width="300px" alt="Demo" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/demo.gif?token=AKZ72JQWCJZZVCOAWSSKAI25ULZ6M"/>
+Features you would love
+---
+<img width="300px" alt="Demo" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/anim_demo.gif"/>
 
 <br><br>
 
-Make choices | Customize it | Get full control
+Take control | Customize the way you want | Various purposes
 --- | --- | ---
-<img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen1.png?token=AKZ72JS2NLZMIK2RNDILOWC5ULZ6S"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen2.png?token=AKZ72JRZZV3LYF2TRDI2YHK5ULZ6W"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/screen3.png?token=AKZ72JXACM7LBRSAY6JSGZ25ULZ62"/>
+<img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/customization.png"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/gradients.png"/> | <img width="256px" alt="Screenshot" src="https://raw.githubusercontent.com/RaviKavaiya/sliding_panel/master/demo/modal.png"/>
 
 #### Easily put your content in the panel, customize it and then just use the panel for various purposes like, 
 - Showing some persistent content on bottom of the screen.

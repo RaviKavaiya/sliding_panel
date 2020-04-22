@@ -1,3 +1,23 @@
+## [1.2.1] - April 22, 2020
+
+- **Change:** From now, the default `safeAreaConfig` will be `SafeAreaConfig.all()`.
+
+- **New:** `SafeAreaConfig.removePaddingFromContent` added, that controls whether to remove auto-padding from panel content as well.
+
+- **Fixed:** When giving `animatedAppearing: true` or using a `modal` panel, rotating the device mistakenly moved the panel to `initialPanelState`.
+
+- **Fixed:** When using a `modal` panel, rotating the device and closing the panel would not restore control back to parent.
+
+- The `PanelController.rebuild()` is improved and also applies `safeAreaConfig`'s padding after rebuild.
+
+- **Fixed:** When using modal panel, it would show an additional space on bottom on devices with notch (e.g., iPhone 11).
+
+- **Fixed:** When using modal panel, it would under-measure the panel height (even if there was enough space on screen available).
+
+- When panel's height reaches `0.0` position, the `PanelDecoration.boxShadows` are now hidden so that shadows are not visible even if the panel is closed.
+
+- The panel is now wrapped in a `Material` widget, so that the `panelContent`'s widgets don't have to.
+
 ## [1.1.2] - April 14, 2020
 
 - Fixed a bug that caused the `safeAreaConfig` to not work properly when giving `margin` to the `PanelDecoration`.

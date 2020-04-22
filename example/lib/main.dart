@@ -2,6 +2,7 @@ import 'package:example/controller-callback-options.dart';
 import 'package:example/dismissible.dart';
 import 'package:example/footer_scroll.dart';
 import 'package:example/modal_panel.dart';
+import 'package:example/safe-area.dart';
 import 'package:example/separate.dart';
 import 'package:example/sizing.dart';
 import 'package:example/two-state.dart';
@@ -33,6 +34,16 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: ListView(
         children: <Widget>[
+          ListTile(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SafeAreaExample()),
+              );
+            },
+            title: Text('SafeAreaConfig'),
+          ),
+          Divider(),
           ListTile(
             onTap: () {
               Navigator.push(

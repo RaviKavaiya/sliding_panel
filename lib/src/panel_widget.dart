@@ -269,7 +269,7 @@ class SlidingPanel extends StatefulWidget {
   ///
   /// This can be used on any type of panel.
   ///
-  /// Default : No padding is applied.
+  /// Default : [SafeAreaConfig.all].
   final SafeAreaConfig safeAreaConfig;
 
   /// A callback that is called whenever the panel is slided.
@@ -319,7 +319,7 @@ class SlidingPanel extends StatefulWidget {
         'This feature may be removed in future releases.')
         this.allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
     this.panelClosedOptions = const PanelClosedOptions(),
-    this.safeAreaConfig = const SafeAreaConfig(),
+    this.safeAreaConfig = const SafeAreaConfig.all(),
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,
@@ -348,7 +348,7 @@ class SlidingPanel extends StatefulWidget {
     this.backPressBehavior = BackPressBehavior.POP,
     this.panelPoppingBehavior = PanelPoppingBehavior.POP_AFTER_TAP,
     this.panelClosedOptions = const PanelClosedOptions(),
-    this.safeAreaConfig = const SafeAreaConfig(),
+    this.safeAreaConfig = const SafeAreaConfig.all(),
     this.onPanelSlide,
     this.onPanelStateChanged,
     this.onThrowResult,

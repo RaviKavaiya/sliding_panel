@@ -293,10 +293,8 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           onPanelSlide: (x) {
             animationController.value = pc.percentPosition(pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
           },
-          // don't allow user to close this panel by tapping back button
-
 //          isDraggable: false,
-          // above will even won't allow user to close the panel
+          // above will even won't allow user to drag the panel
         ),
       ),
     );

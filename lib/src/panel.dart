@@ -30,13 +30,19 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
 
   bool _shouldNotifyOnClose = true;
   bool _safeToPop = true;
+
+  // Whether this is the initial build
   bool _isInitialBuild = true;
+
+  // Whether animatedAppearing or Modal's InitialPanelState has animated
+  bool _initialStateAnimated = false;
 
   // Variables for applying padding to the panel
   double topPadding = 0.0;
   double bottomPadding = 0.0;
   double leftPadding = 0.0;
   double rightPadding = 0.0;
+  double additionalBottomPadding = 0.0;
 
   bool _paddingApplyNeeded = false;
 
@@ -117,21 +123,24 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
   }
 
   void rebuild({VoidCallback then}) {
-    if (autoSizing.headerSizeIsClosed || autoSizing.autoSizeCollapsed || autoSizing.autoSizeExpanded) {
-      setState(() {});
-      // refresh
+    // Refresh first
+    setState(() {});
 
-      SchedulerBinding.instance.addPostFrameCallback((_) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (autoSizing.headerSizeIsClosed || autoSizing.autoSizeCollapsed || autoSizing.autoSizeExpanded) {
         _calculateHeights();
+      }
 
-        _controller._updateDurations();
-        widget?.panelController?._updateDurations();
+      _controller._updateDurations();
+      widget?.panelController?._updateDurations();
 
-        SchedulerBinding.instance.addPostFrameCallback(
-          (_) => then?.call(),
-        );
-      });
-    }
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) {
+          _applyPaddings();
+          then?.call();
+        },
+      );
+    });
   }
 
   void _calculateHeaderHeight() {
@@ -354,10 +363,20 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
   void _applyPaddings() {
     SchedulerBinding.instance.addPostFrameCallback((x) {
       setState(() {
-        if (_metadata.safeAreaConfig != null) {
-          // Initialize with 0.
-          topPadding = bottomPadding = leftPadding = rightPadding = 0.0;
+        // Initialize with 0.
+        topPadding = bottomPadding = leftPadding = rightPadding = additionalBottomPadding = 0.0;
 
+        // If footer top margin is given, add it to bottom padding
+        if ((footer?.decoration?.margin?.top ?? 0) > 0.0) {
+          additionalBottomPadding += footer.decoration.margin.top;
+        }
+
+        // If footer top margin is given, add it to bottom padding
+        if ((footer?.decoration?.margin?.bottom ?? 0) > 0.0) {
+          additionalBottomPadding += footer.decoration.margin.bottom;
+        }
+
+        if (_metadata.safeAreaConfig != null) {
           // Additional padding required.
           double additionalTopPadding = 0.0;
           double additionalLeftPadding = 0.0;
@@ -530,81 +549,84 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         });
       }
 
-      if (isModal) {
-        // if the panel is a modal
-        // i.e., from showModalSlidingPanel()
+      if (!_initialStateAnimated) {
+        _initialStateAnimated = true;
+        if (isModal) {
+          // if the panel is a modal
+          // i.e., from showModalSlidingPanel()
 
-        SchedulerBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            // decide the state in which the panel will open
-            InitialPanelState decidedState = _decideInitStateForModal(metadata: _metadata);
+          SchedulerBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              // decide the state in which the panel will open
+              InitialPanelState decidedState = _decideInitStateForModal(metadata: _metadata);
 
-            // animate the panel.
-            // Don't wait for the animation to complete here,
-            // because if the panel is animating and user stops it by dragging,
-            // the wait will never be over.
-            switch (decidedState) {
-              case InitialPanelState.dismissed:
-                _controller.expand();
-                break;
-              case InitialPanelState.closed:
-                _controller.close();
-                break;
-              case InitialPanelState.collapsed:
-                _controller.collapse();
-                break;
-              case InitialPanelState.expanded:
-                _controller.expand();
-                break;
+              // animate the panel.
+              // Don't wait for the animation to complete here,
+              // because if the panel is animating and user stops it by dragging,
+              // the wait will never be over.
+              switch (decidedState) {
+                case InitialPanelState.dismissed:
+                  _controller.expand();
+                  break;
+                case InitialPanelState.closed:
+                  _controller.close();
+                  break;
+                case InitialPanelState.collapsed:
+                  _controller.collapse();
+                  break;
+                case InitialPanelState.expanded:
+                  _controller.expand();
+                  break;
+              }
+
+              widget._panelModalRoute.popped.then((_) {
+                _safeToPop = false;
+                // popped by parent, dismiss the panel
+                // this comes into picure when Navigator.of(context).pop(something)
+                // is called.
+                if (mounted) _controller.dismiss();
+              });
             }
+          });
+        } else {
+          if (_metadata.animatedAppearing) {
+            // animate the appearing of the panel
+            // we need to prevent height listener from listening, otherwise
+            // it would throw state changes to its listeners...
+            SchedulerBinding.instance.addPostFrameCallback((_) async {
+              // remove original listener
+              _metadata._removeHeightListener(_panelHeightChangedListener);
 
-            widget._panelModalRoute.popped.then((_) {
-              _safeToPop = false;
-              // popped by parent, dismiss the panel
-              // this comes into picure when Navigator.of(context).pop(something)
-              // is called.
-              if (mounted) _controller.dismiss();
+              // add temporary listener
+              _metadata._addHeightListener(_tempListener);
+
+              // animate
+              // animate the panel, wait for it
+              switch (widget.initialState) {
+                case InitialPanelState.dismissed:
+                  await _controller.dismiss();
+                  break;
+                case InitialPanelState.closed:
+                  await _controller.close();
+                  break;
+                case InitialPanelState.collapsed:
+                  if (_metadata.isTwoStatePanel)
+                    await _controller.expand();
+                  else
+                    await _controller.collapse();
+                  break;
+                case InitialPanelState.expanded:
+                  await _controller.expand();
+                  break;
+              }
+
+              // remove temporary listener
+              _metadata._removeHeightListener(_tempListener);
+
+              // back to original
+              _metadata._addHeightListener(_panelHeightChangedListener);
             });
           }
-        });
-      } else {
-        if (_metadata.animatedAppearing) {
-          // animate the appearing of the panel
-          // we need to prevent height listener from listening, otherwise
-          // it would throw state changes to its listeners...
-          SchedulerBinding.instance.addPostFrameCallback((_) async {
-            // remove original listener
-            _metadata._removeHeightListener(_panelHeightChangedListener);
-
-            // add temporary listener
-            _metadata._addHeightListener(_tempListener);
-
-            // animate
-            // animate the panel, wait for it
-            switch (widget.initialState) {
-              case InitialPanelState.dismissed:
-                await _controller.dismiss();
-                break;
-              case InitialPanelState.closed:
-                await _controller.close();
-                break;
-              case InitialPanelState.collapsed:
-                if (_metadata.isTwoStatePanel)
-                  await _controller.expand();
-                else
-                  await _controller.collapse();
-                break;
-              case InitialPanelState.expanded:
-                await _controller.expand();
-                break;
-            }
-
-            // remove temporary listener
-            _metadata._removeHeightListener(_tempListener);
-
-            // back to original
-            _metadata._addHeightListener(_panelHeightChangedListener);
-          });
         }
       }
     }
@@ -773,7 +795,14 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
                 image: header.decoration.image,
                 backgroundBlendMode: header.decoration.backgroundBlendMode,
               ),
-              padding: header.decoration.padding,
+//              padding: header.decoration.padding,
+              padding: EdgeInsets.only(
+                top: ((header?.decoration?.padding?.top ?? 0) +
+                    (header.options.primary ? MediaQuery.of(context).padding.top : 0)),
+                bottom: header?.decoration?.padding?.bottom ?? 0,
+                left: header?.decoration?.padding?.left ?? 0,
+                right: header?.decoration?.padding?.right ?? 0,
+              ),
               margin: header.decoration.margin,
               child: header.headerContent,
             ),
@@ -793,8 +822,8 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         actionsIconTheme: null,
         expandedHeight: null,
         //
-        primary: header.options.primary,
-        centerTitle: header.options.centerTitle,
+        primary: false,
+        centerTitle: true,
         elevation: header.options.elevation,
         forceElevated: header.options.forceElevated,
         pinned: header.options.alwaysOnTop,
@@ -802,17 +831,23 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
         snap: header.options.floating,
         leading: header.options.leading == null
             ? null
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: header.options.iconsAlignment,
-                children: <Widget>[Flexible(child: header?.options?.leading ?? Container())],
+            : Padding(
+                padding: EdgeInsets.only(top: header.options.primary ? MediaQuery.of(context).padding.top : 0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: header.options.iconsAlignment,
+                  children: <Widget>[Flexible(child: header?.options?.leading ?? Container())],
+                ),
               ),
         actions: [
           for (var action in header?.options?.trailing ?? [])
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: header.options.iconsAlignment,
-              children: <Widget>[Flexible(child: action)],
+            Padding(
+              padding: EdgeInsets.only(top: header.options.primary ? MediaQuery.of(context).padding.top : 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: header.options.iconsAlignment,
+                children: <Widget>[Flexible(child: action)],
+              ),
             ),
         ],
       );
@@ -892,29 +927,37 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
-        Material(
-          type: MaterialType.transparency,
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: <Widget>[
-              // header
-              if (header.headerContent != null)
-                _headerSliver,
+        MediaQuery.removePadding(
+          context: context,
+          removeTop: _metadata.safeAreaConfig.removePaddingFromContent,
+          removeBottom: _metadata.safeAreaConfig.removePaddingFromContent,
+          removeLeft: _metadata.safeAreaConfig.removePaddingFromContent,
+          removeRight: _metadata.safeAreaConfig.removePaddingFromContent,
+          child: Material(
+            type: MaterialType.transparency,
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: <Widget>[
+                // header
+                if (header.headerContent != null)
+                  _headerSliver,
 
-              // panel
-              SliverOpacity(
-                opacity: _getPanelOpacity(this),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate([
-                    ..._panelContentItems,
-                    SizedBox(
-                      height: _calculatedFooterHeight,
-                      // add footer's height, margin already included
-                    ),
-                  ]),
+                // panel
+                SliverOpacity(
+                  opacity: _getPanelOpacity(this),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      ..._panelContentItems,
+                      SizedBox(
+                        height: _calculatedFooterHeight,
+                        // add footer's height, margin already included
+                      ),
+                      SizedBox(height: additionalBottomPadding),
+                    ]),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
@@ -1000,7 +1043,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
             ? BoxDecoration(
                 border: decoration.border,
                 borderRadius: decoration.borderRadius,
-                boxShadow: decoration.boxShadows,
+                boxShadow: _metadata.currentHeight > 0.0 ? decoration.boxShadows : null,
                 color: decoration.backgroundColor ?? Theme.of(context).canvasColor,
                 gradient: decoration.gradient,
                 image: decoration.image,
@@ -1059,14 +1102,27 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
           maxWidthPortrait = min(_metadata.constrainedWidth - leftPadding - rightPadding, widget.maxWidth.portrait);
           maxWidthLandscape = min(_metadata.constrainedWidth - leftPadding - rightPadding, widget.maxWidth.landscape);
 
-          _metadata.constrainedHeight -= bottomPadding;
+          // Subtract bottomPadding from height, if this is not a modal panel
+          _metadata.constrainedHeight -= isModal ? 0 : bottomPadding;
 
           if (_paddingApplyNeeded) {
             _paddingApplyNeeded = false;
             _applyPaddings();
           }
 
-          return _body;
+          // Wrap with material, so that panel content can use it
+          return Material(
+            type: MaterialType.transparency,
+            // Remove padding, as it is handled by useSafeConfig
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: (isModal),
+              removeBottom: (isModal),
+              removeLeft: (isModal),
+              removeRight: (isModal),
+              child: _body,
+            ),
+          );
         },
       ),
     );
