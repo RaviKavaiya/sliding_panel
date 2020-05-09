@@ -28,7 +28,7 @@ class _MyListItemState extends State<MyListItem> {
       },
       title: Text(
         widget.name,
-        style: Theme.of(context).textTheme.title,
+        style: Theme.of(context).textTheme.headline6,
       ),
       leading: Icon(
         Icons.check_circle,
@@ -84,7 +84,7 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
               padding: EdgeInsets.all(16),
               child: Text(
                 'Selection',
-                style: Theme.of(context).textTheme.headline,
+                style: Theme.of(context).textTheme.headline5,
               ),
             ),
             decoration: PanelDecoration(
@@ -121,7 +121,7 @@ class _FooterAndScrollState extends State<FooterAndScroll> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'This is the example of panel, having a PanelFooterWidget.\nThis also uses PanelMaxWidth.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(

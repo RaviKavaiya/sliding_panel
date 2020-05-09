@@ -256,7 +256,10 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
     if (((boxContent?.size?.height ?? null) != null) && (autoSizing.autoSizeExpanded)) {
       // panelContent provided and size calculated.
 
-      final expHeight = boxContent.size.height;
+      var expHeight = boxContent.size.height;
+
+      var mediaQueryPadding = MediaQuery.of(context).padding.vertical;
+      if (_metadata.safeAreaConfig.bodyHasSlivers) expHeight -= mediaQueryPadding;
 
       setState(() {
         if (expHeight < _collapsedHeightTemp) {

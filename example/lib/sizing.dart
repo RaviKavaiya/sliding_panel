@@ -23,7 +23,7 @@ class _SizingExampleState extends State<SizingExample> {
           padding: const EdgeInsets.all(16.0),
           child: Text(
             'This is a sample panel',
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.headline5,
           ),
         ),
       ];
@@ -90,35 +90,35 @@ class _SizingExampleState extends State<SizingExample> {
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         'You can change the panel\'s height runtime. Panel will animate automatically to that position.',
-                        style: Theme.of(context).textTheme.subhead,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         'If you want to achieve such functionality, (its rarely needed) you need to turn off PanelAutoSizing.',
-                        style: Theme.of(context).textTheme.subhead,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         'For best results (viewing animation), keep the panel in same position. (e.g., if you are changing \'collapsed\Height\', you should keep the panel in \'collapsed\' mode. (This is not compulsory)).',
-                        style: Theme.of(context).textTheme.subhead,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         'Checkout the PanelSizeData while you change these values, it gets updated.',
-                        style: Theme.of(context).textTheme.subhead,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
                         'Here, we also make use of \'animatedAppearing\'.',
-                        style: Theme.of(context).textTheme.subhead,
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ),
                   ],

@@ -24,13 +24,13 @@ class _DismissibleExampleState extends State<DismissibleExample> {
           onTap: pc.dismiss,
           title: Text(
             'Dismiss this panel',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
           title: Text(
             'This is my SlidingPanel',
-            style: Theme.of(context).textTheme.subhead,
+            style: Theme.of(context).textTheme.subtitle1,
           ),
         ),
       ];
@@ -52,7 +52,7 @@ class _DismissibleExampleState extends State<DismissibleExample> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'Current state : ${currentState.toString().substring(11)}',
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
                 Wrap(
@@ -82,49 +82,49 @@ class _DismissibleExampleState extends State<DismissibleExample> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'This is a Dismissible panel. Try it using above given buttons.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'Note when you change the device\'s resolution (e.g., rotating), the panel also persists the position and state',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'Here, the panel\'s closedHeight is given as \'0.20\'. Means, panel can\'t go below this point. \nBut when you call \'dismiss()\' on the controller, this restriction is ignored and panel goes to position \'0.0\'.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'After dismissing, you can bring back the panel to any state you want.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(left: 12, right: 12, top: 32, bottom: 4),
                   child: Text(
                     'About the \'dismissed\' state: ',
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'This state is ONLY returned (notified) when CURRENT HEIGHT is 0.0 and \'closedHeight\' IS NOT SET TO 0.0. If \'closedHeight\' is set to 0.0, \'closed\' state is notified, NOT \'dismissed\'.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'Moreover, \'draggableInClosed\' from \'backdropConfig\' will behave the same way as mentioned above. If \'closedHeight\' is 0.0 and current position also, even dismissed panel is draggable. \nBut, if \'closedHeight\' is NOT 0.0, then dismissed panel IS NOT a draggable panel.\n\nTo make this more clear, click on "\'"Draggable from body".',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 SizedBox(height: 200),

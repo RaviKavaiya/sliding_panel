@@ -787,7 +787,18 @@ class SafeAreaConfig {
   /// to the content. So, set this to true in such cases.
   final bool removePaddingFromContent;
 
+  /// If [PanelContent.bodyContent] is a [CustomScrollView] (e.g., slivers),
+  /// you may see additional space in your [PanelContent.panelContent].
+  ///
+  /// In such cases, set this to true in order to fix that.
+  ///
+  /// Don't set this to true if your bodyContent is any normal widget.
+  final bool bodyHasSlivers;
+
   /// Apply no padding.
+  ///
+  /// Assumes that the [PanelContent.bodyContent] is a normal child.
+  /// (No slivers).
   ///
   /// Also, don't remove padding from the content.
   const SafeAreaConfig({
@@ -795,17 +806,22 @@ class SafeAreaConfig {
     this.bottom = false,
     this.sides = false,
     this.removePaddingFromContent = false,
+    this.bodyHasSlivers = false,
   });
 
   /// Apply padding on all sides:
   /// top, bottom, left and right.
   ///
+  /// Assumes that the [PanelContent.bodyContent] is a normal child.
+  /// (No slivers).
+  ///
   /// Also, don't remove padding from the content.
   ///
   /// This is the default.
-  const SafeAreaConfig.all({bool removePaddingFromContent})
+  const SafeAreaConfig.all({bool removePaddingFromContent, bool bodyHasSlivers})
       : this.top = true,
         this.bottom = true,
         this.sides = true,
-        this.removePaddingFromContent = removePaddingFromContent ?? false;
+        this.removePaddingFromContent = removePaddingFromContent ?? false,
+        this.bodyHasSlivers = bodyHasSlivers ?? false;
 }

@@ -1,3 +1,11 @@
+## [1.2.2] - May 09, 2020
+
+- **Fixed:** TextTheme deprecation warnings.
+
+- **Fixed:** Some analyzer warnings of missing case clauses.
+
+- **New:** Use `SafeAreaConfig.bodyHasSlivers` if you plan to use Slivers in `PanelContent.bodyContent`.
+
 ## [1.2.1] - April 22, 2020
 
 - **Change:** From now, the default `safeAreaConfig` will be `SafeAreaConfig.all()`.
@@ -36,8 +44,7 @@
 
 - **Change:** In this release, the way the `useSafeArea` parameter works, is changed. Instead of wrapping whole panel in `SafeArea`, only top, left and right padding will be applied as necessary.
 
-    - That means from now, `PanelContent.bodyContent`, `BackdropConfig`'s shadow will be un-affected by `useSafeArea` parameter and will get full screen available. 
-
+  - That means from now, `PanelContent.bodyContent`, `BackdropConfig`'s shadow will be un-affected by `useSafeArea` parameter and will get full screen available.
 
 ## [1.0.4] - April 11, 2020
 
@@ -70,42 +77,45 @@
 For migration to this version, visit the [**Migration guide**](https://github.com/RaviKavaiya/sliding_panel/wiki/Migration-guide).
 
 ### Dismissible panel:
+
 - Now, the panel can be dismissed. Means, it can work as **4-state** panel, namely `expanded, collapsed, closed and dismissed`.
 - As a part of this change, `PanelController.dismiss()`, `PanelState.dismissed` and `InitialPanelState.dismissed` were added.
-- *This works for two-state panels also!*
+- _This works for two-state panels also!_
 
-***
+---
 
 ### Modal panel:
-- Use `SlidingPanel` *exactly* same as `showModalBottomSheet()`, by calling `showModalSlidingPanel()`. It pushes a new route, waits for a `Navigator.of(context).pop()`...
-And guess what, you can also send results back, same as you did in `showModalBottomSheet()`!!!
 
-***
+- Use `SlidingPanel` _exactly_ same as `showModalBottomSheet()`, by calling `showModalSlidingPanel()`. It pushes a new route, waits for a `Navigator.of(context).pop()`...
+  And guess what, you can also send results back, same as you did in `showModalBottomSheet()`!!!
+
+---
 
 ### `PanelHeader` changes and improvements:
+
 - PanelHeader is now rendered as a `SliverAppBar`! It has its own advantages.
 - PanelHeader now also accepts a parameter: `options`, an instance of `PanelHeaderOptions`, specially meant to customize the header.
 
-***
+---
 
 ### `panelContent` changes:
+
 - **Breaking change:** `PanelContent.panelContent` now only accepts a `List<Widget>`. To get access to `ScrollController`, grab that by `PanelController.scrollData.scrollController`.
 - **Breaking change:** As part of above change, you DON'T have to attach the `ScrollController` yourself to any Widget. It is now done **automatically**.
-- `panelContent` is now *cached*, so that it doesn't require parent to provide the same content twice due to `PanelAutoSizing`.
+- `panelContent` is now _cached_, so that it doesn't require parent to provide the same content twice due to `PanelAutoSizing`.
 
-***
+---
 
 - **Breaking change:** `snapPanel` was removed. Instead, a new enum called `PanelSnapping` is introduced. (The parameter is now called `snapping`).
 - **Breaking change:** In `PanelDecoration` , the `backgroundColor` defaults to the app's canvas color (i.e., `Theme.of(context).canvasColor`).
 - **Breaking change:** The `Duration` is now calculated from `PanelState.dismissed` to `PanelState.expanded` instead of from `PanelState.closed` to `PanelState.expanded`.
 - **Breaking change:** The `PanelController.popWithResult()` will `dismiss` the panel, instead of `close`. To avoid this, set `shouldCloseOnly` to `true`. (This also applies to a newly introduced `PanelController.popWithThrowResult()`).
 
+* **Change:** Now, the PanelController doesn't throw error when it is re-assigned to different SlidingPanel. It simply ignores old one and points to new one.
+* **Change:** `PanelCollapsedWidget` is now shown **below** the `PanelHeaderWidget`.
+* **Refactor:** The code in `panel.dart` is refactored a lot. Now, it should be easy to understand.
 
-- **Change:** Now, the PanelController doesn't throw error when it is re-assigned to different SlidingPanel. It simply ignores old one and points to new one.
-- **Change:** `PanelCollapsedWidget` is now shown **below** the `PanelHeaderWidget`.
-- **Refactor:** The code in `panel.dart` is refactored a lot. Now, it should be easy to understand.
-
-***
+---
 
 - **Fix + improved:** `PanelAutoSizing` related bugs fixed (they were many), unnecessary calculations removed.
 - **Fix:** For calculating various heights, 'Screen height (and width)' was used. Now, available 'Constrained height' is used, for more accurate calculation.
@@ -116,8 +126,8 @@ And guess what, you can also send results back, same as you did in `showModalBot
 - **Fix:** The panel now remembers the position when device's resolution / orientation changes.
 - **Fix:** A bug with `BackPressBehavior.COLLAPSE_CLOSE_POP` fixed.
 
-***
- 
+---
+
 - **New:** A whole new `Sliver` based layout, where the `PanelHeaderWidget` is a `SliverAppBar` and contents are inside `SliverList`.
 - **New:** Call `rebuild()` on PanelController to recalculate the PanelSize again.
 - **New:** New way to notify changes to the parent, using `throwResult()` and `popWithThrowResult()` which give results to `onThrowResult` callback.
@@ -127,9 +137,6 @@ And guess what, you can also send results back, same as you did in `showModalBot
 - **New:** New parameter: `animatedAppearing`. If true, the panel animates to `initialState`, initially.
 - **New:** New parameter: `dragMultiplier`. Now decide the amount of the panel slides when user drags the panel.
 
-
-
-
 ## [0.7.0] - November 08, 2019
 
 This release introduces below new features. There is no breaking change.
@@ -137,8 +144,6 @@ This release introduces below new features. There is no breaking change.
 - **New:** Now you can specify panel's maximum width under different device orientations using `PanelMaxWidth` parameter.
 - **New:** A new class `PanelFooterWidget` is added, so that you can give your panel a consistent bottom widget!
 - **New:** A new class `PanelScrollData` is added, which is helpful to get current scrolling position of the panel.
-
-
 
 ## [0.5.0] - October 06, 2019
 
@@ -154,10 +159,8 @@ This package release introduces some API changes (majorly breaking changes) and 
 - `onPanelExpanded`, `onPanelCollapsed` and `onPanelClosed` are all combined in single : `onPanelStateChanged`.
 - **Breaking change:** The `headerContent` is now moved to a separate `Widget` called `PanelHeaderWidget`.
 - **Breaking change:** For `panelContent`, a new `typedef` is introduced, called `PanelBodyBuilder`.
-- **Breaking change:** `PanelSize` class no longer accepts values in *pixels*. Only percentage values can be given from now.
+- **Breaking change:** `PanelSize` class no longer accepts values in _pixels_. Only percentage values can be given from now.
 - **New and Breaking change:** The `PanelState` : `animating` works in adifferent way and a new state `indefinite` added.
-
-
 
 ## [0.2.0] - September 13, 2019
 
@@ -170,8 +173,6 @@ Now, the package is updated with some improvements as below:
 - A persistent header widget can be provided.
 - The panel's height can be automatically determined depending on content! (see `PanelAutoSizing` class for this).
 
-
-
 ## [0.1.0] - September 07, 2019
 
 The initial release of the sliding_panel package. This includes below functions to the developers:
@@ -183,6 +184,6 @@ The initial release of the sliding_panel package. This includes below functions 
 - PanelController allows to animate the panel to arbitrary position
 - Various callbacks that help getting current state of the panel
 - Parallax and Backdrop effects on the panel
-- Provide InitialPanelState property to decide how the panel is displayed initially 
+- Provide InitialPanelState property to decide how the panel is displayed initially
 - Also responds to user gestures
 - Panel can return arbitrary values back to the parent

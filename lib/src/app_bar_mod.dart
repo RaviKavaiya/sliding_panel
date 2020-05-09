@@ -32,8 +32,7 @@ class _ToolbarContainerLayout extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_ToolbarContainerLayout oldDelegate) =>
-      titleHeight != oldDelegate.titleHeight;
+  bool shouldRelayout(_ToolbarContainerLayout oldDelegate) => titleHeight != oldDelegate.titleHeight;
 }
 
 // https://material.io/design/components/app-bars-top.html#specs
@@ -180,6 +179,7 @@ class SlidingPanelAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.textTheme,
     this.primary = true,
     this.centerTitle,
+    this.excludeHeaderSemantics = false,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.titleHeight = kToolbarHeight,
     this.toolbarOpacity = 1.0,
@@ -341,6 +341,11 @@ class SlidingPanelAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// Defaults to being adapted to the current [TargetPlatform].
   final bool centerTitle;
 
+  /// Whether the title should be wrapped with header [Semantics].
+  ///
+  /// Defaults to false.
+  final bool excludeHeaderSemantics;
+
   /// The spacing around [title] content on the horizontal axis. This spacing is
   /// applied even if there is no [leading] content or [actions]. If you want
   /// [title] to take all the space available, set this value to 0.0.
@@ -384,8 +389,11 @@ class SlidingPanelAppBar extends StatefulWidget implements PreferredSizeWidget {
     switch (theme.platform) {
       case TargetPlatform.android:
       case TargetPlatform.fuchsia:
+      case TargetPlatform.linux:
+      case TargetPlatform.windows:
         return false;
       case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
         return actions == null || actions.length < 2;
     }
     return null;
@@ -420,26 +428,19 @@ class _SlidingPanelAppBarState extends State<SlidingPanelAppBar> {
     final bool canPop = parentRoute?.canPop ?? false;
     final bool useCloseButton = parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
 
-    IconThemeData overallIconTheme =
-        widget.iconTheme ?? appBarTheme.iconTheme ?? theme.primaryIconTheme;
-    IconThemeData actionsIconTheme =
-        widget.actionsIconTheme ?? appBarTheme.actionsIconTheme ?? overallIconTheme;
+    IconThemeData overallIconTheme = widget.iconTheme ?? appBarTheme.iconTheme ?? theme.primaryIconTheme;
+    IconThemeData actionsIconTheme = widget.actionsIconTheme ?? appBarTheme.actionsIconTheme ?? overallIconTheme;
     TextStyle centerStyle =
-        widget.textTheme?.title ?? appBarTheme.textTheme?.title ?? theme.primaryTextTheme.title;
+        widget.textTheme?.headline6 ?? appBarTheme.textTheme?.headline6 ?? theme.primaryTextTheme.headline6;
     TextStyle sideStyle =
-        widget.textTheme?.body1 ?? appBarTheme.textTheme?.body1 ?? theme.primaryTextTheme.body1;
+        widget.textTheme?.bodyText2 ?? appBarTheme.textTheme?.bodyText2 ?? theme.primaryTextTheme.bodyText2;
 
     if (widget.toolbarOpacity != 1.0) {
-      final double opacity =
-          const Interval(0.25, 1.0, curve: Curves.fastOutSlowIn).transform(widget.toolbarOpacity);
-      if (centerStyle?.color != null)
-        centerStyle = centerStyle.copyWith(color: centerStyle.color.withOpacity(opacity));
-      if (sideStyle?.color != null)
-        sideStyle = sideStyle.copyWith(color: sideStyle.color.withOpacity(opacity));
-      overallIconTheme =
-          overallIconTheme.copyWith(opacity: opacity * (overallIconTheme.opacity ?? 1.0));
-      actionsIconTheme =
-          actionsIconTheme.copyWith(opacity: opacity * (actionsIconTheme.opacity ?? 1.0));
+      final double opacity = const Interval(0.25, 1.0, curve: Curves.fastOutSlowIn).transform(widget.toolbarOpacity);
+      if (centerStyle?.color != null) centerStyle = centerStyle.copyWith(color: centerStyle.color.withOpacity(opacity));
+      if (sideStyle?.color != null) sideStyle = sideStyle.copyWith(color: sideStyle.color.withOpacity(opacity));
+      overallIconTheme = overallIconTheme.copyWith(opacity: opacity * (overallIconTheme.opacity ?? 1.0));
+      actionsIconTheme = actionsIconTheme.copyWith(opacity: opacity * (actionsIconTheme.opacity ?? 1.0));
     }
 
     Widget leading = widget.leading;
@@ -467,20 +468,29 @@ class _SlidingPanelAppBarState extends State<SlidingPanelAppBar> {
       switch (theme.platform) {
         case TargetPlatform.android:
         case TargetPlatform.fuchsia:
+        case TargetPlatform.linux:
+        case TargetPlatform.windows:
           namesRoute = true;
           break;
         case TargetPlatform.iOS:
+        case TargetPlatform.macOS:
           break;
       }
+
+      title = _AppBarTitleBox(child: title);
+      if (!widget.excludeHeaderSemantics) {
+        title = Semantics(
+          namesRoute: namesRoute,
+          child: title,
+          header: true,
+        );
+      }
+
       title = DefaultTextStyle(
         style: centerStyle,
         softWrap: false,
         overflow: TextOverflow.ellipsis,
-        child: Semantics(
-          namesRoute: namesRoute,
-          child: _AppBarTitleBox(child: title),
-          header: true,
-        ),
+        child: title,
       );
     }
 
@@ -543,8 +553,7 @@ class _SlidingPanelAppBarState extends State<SlidingPanelAppBar> {
             widget.bottom
           else
             Opacity(
-              opacity: const Interval(0.25, 1.0, curve: Curves.fastOutSlowIn)
-                  .transform(widget.bottomOpacity),
+              opacity: const Interval(0.25, 1.0, curve: Curves.fastOutSlowIn).transform(widget.bottomOpacity),
               child: widget.bottom,
             ),
         ],
@@ -554,6 +563,7 @@ class _SlidingPanelAppBarState extends State<SlidingPanelAppBar> {
     // The padding applies to the toolbar and tabbar, not the flexible space.
     if (widget.primary) {
       appBar = SafeArea(
+        bottom: false,
         top: true,
         child: appBar,
       );
@@ -573,8 +583,7 @@ class _SlidingPanelAppBarState extends State<SlidingPanelAppBar> {
         ],
       );
     }
-    final Brightness brightness =
-        widget.brightness ?? appBarTheme.brightness ?? theme.primaryColorBrightness;
+    final Brightness brightness = widget.brightness ?? appBarTheme.brightness ?? theme.primaryColorBrightness;
     final SystemUiOverlayStyle overlayStyle =
         brightness == Brightness.dark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark;
 
@@ -661,6 +670,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     @required this.textTheme,
     @required this.primary,
     @required this.centerTitle,
+    @required this.excludeHeaderSemantics,
     @required this.titleSpacing,
     @required this.titleHeight,
     @required this.expandedHeight,
@@ -690,6 +700,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final TextTheme textTheme;
   final bool primary;
   final bool centerTitle;
+  final bool excludeHeaderSemantics;
   final double titleSpacing;
   final double titleHeight;
   final double expandedHeight;
@@ -705,8 +716,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   double get minExtent => collapsedHeight ?? (topPadding + titleHeight + _bottomHeight);
 
   @override
-  double get maxExtent =>
-      max(topPadding + (expandedHeight ?? titleHeight + _bottomHeight), minExtent);
+  double get maxExtent => max(topPadding + (expandedHeight ?? titleHeight + _bottomHeight), minExtent);
 
   @override
   final FloatingHeaderSnapConfiguration snapConfiguration;
@@ -743,14 +753,13 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         automaticallyImplyLeading: automaticallyImplyLeading,
         title: title,
         actions: actions,
-        flexibleSpace: (title == null && flexibleSpace != null)
+        flexibleSpace: (title == null && flexibleSpace != null && !excludeHeaderSemantics)
             ? Semantics(child: flexibleSpace, header: true)
             : flexibleSpace,
         bottom: bottom,
-        elevation:
-            forceElevated || overlapsContent || (pinned && shrinkOffset > maxExtent - minExtent)
-                ? elevation ?? 4.0
-                : 0.0,
+        elevation: forceElevated || overlapsContent || (pinned && shrinkOffset > maxExtent - minExtent)
+            ? elevation ?? 4.0
+            : 0.0,
         backgroundColor: backgroundColor,
         brightness: brightness,
         iconTheme: iconTheme,
@@ -758,12 +767,12 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
         textTheme: textTheme,
         primary: primary,
         centerTitle: centerTitle,
+        excludeHeaderSemantics: excludeHeaderSemantics,
         titleSpacing: titleSpacing,
         titleHeight: titleHeight,
         shape: shape,
         toolbarOpacity: toolbarOpacity,
-        bottomOpacity:
-            pinned ? 1.0 : ((visibleMainHeight / _bottomHeight).clamp(0.0, 1.0) as double),
+        bottomOpacity: pinned ? 1.0 : ((visibleMainHeight / _bottomHeight).clamp(0.0, 1.0) as double),
       ),
     );
     return floating ? _FloatingAppBar(child: appBar) : appBar;
@@ -902,6 +911,7 @@ class SlidingPanelSliverAppBar extends StatefulWidget {
     this.textTheme,
     this.primary = true,
     this.centerTitle,
+    this.excludeHeaderSemantics = false,
     this.titleSpacing = NavigationToolbar.kMiddleSpacing,
     this.titleHeight = kToolbarHeight,
     this.expandedHeight,
@@ -1068,6 +1078,11 @@ class SlidingPanelSliverAppBar extends StatefulWidget {
   /// Defaults to being adapted to the current [TargetPlatform].
   final bool centerTitle;
 
+  /// Whether the title should be wrapped with header [Semantics].
+  ///
+  /// Defaults to false.
+  final bool excludeHeaderSemantics;
+
   /// The spacing around [title] content on the horizontal axis. This spacing is
   /// applied even if there is no [leading] content or [actions]. If you want
   /// [title] to take all the space available, set this value to 0.0.
@@ -1190,8 +1205,7 @@ class SlidingPanelSliverAppBar extends StatefulWidget {
 
 // This class is only Stateful because it owns the TickerProvider used
 // by the floating appbar snap animation (via FloatingHeaderSnapConfiguration).
-class _SlidingPanelSliverAppBarState extends State<SlidingPanelSliverAppBar>
-    with TickerProviderStateMixin {
+class _SlidingPanelSliverAppBarState extends State<SlidingPanelSliverAppBar> with TickerProviderStateMixin {
   FloatingHeaderSnapConfiguration _snapConfiguration;
   OverScrollHeaderStretchConfiguration _stretchConfiguration;
 
@@ -1228,8 +1242,7 @@ class _SlidingPanelSliverAppBarState extends State<SlidingPanelSliverAppBar>
   @override
   void didUpdateWidget(SlidingPanelSliverAppBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.snap != oldWidget.snap || widget.floating != oldWidget.floating)
-      _updateSnapConfiguration();
+    if (widget.snap != oldWidget.snap || widget.floating != oldWidget.floating) _updateSnapConfiguration();
     if (widget.stretch != oldWidget.stretch) _updateStretchConfiguration();
   }
 
@@ -1263,6 +1276,7 @@ class _SlidingPanelSliverAppBarState extends State<SlidingPanelSliverAppBar>
           textTheme: widget.textTheme,
           primary: widget.primary,
           centerTitle: widget.centerTitle,
+          excludeHeaderSemantics: widget.excludeHeaderSemantics,
           titleSpacing: widget.titleSpacing,
           titleHeight: widget.titleHeight,
           expandedHeight: widget.expandedHeight,
@@ -1308,6 +1322,7 @@ class _RenderAppBarTitleBox extends RenderAligningShiftedBox {
 
   @override
   void performLayout() {
+    final BoxConstraints constraints = this.constraints;
     final BoxConstraints innerConstraints = constraints.copyWith(maxHeight: double.infinity);
     child.layout(innerConstraints, parentUsesSize: true);
     size = constraints.constrain(child.size);

@@ -42,7 +42,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Pizza',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -51,7 +51,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Sandwich',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -61,7 +61,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Pasta',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -70,7 +70,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Malai Kofta',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -79,7 +79,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'French Fries',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -88,7 +88,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Samosas',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -97,7 +97,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Toast',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -106,7 +106,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Frankie',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -115,7 +115,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Burger',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -124,7 +124,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Salad',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -133,7 +133,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Chips',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         ListTile(
@@ -142,7 +142,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           },
           title: Text(
             'Cookies',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
       ];
@@ -182,7 +182,7 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
             headerWidget: PanelHeaderWidget(
               headerContent: Text(
                 'Menu',
-                style: Theme.of(context).textTheme.headline,
+                style: Theme.of(context).textTheme.headline5,
               ),
               decoration: PanelDecoration(
                 margin: EdgeInsets.all(16),
@@ -217,42 +217,42 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       selected,
-                      style: Theme.of(context).textTheme.title,
+                      style: Theme.of(context).textTheme.headline6,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'Two state panels are better used when something like \'modal bottom sheet\' is needed.',
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'This is a panel, which shows a list inside it and user can tap an item to close the panel. \n\nWe have set \'BackPressBehavior\' to \'PERSIST\' so that user can\'t close the panel manually.',
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'Note that when you select \'Pasta\', the panel isn\'t closed.',
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'Notice the amount the panel slides when you drag it.',
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
                       'Panel is currently dismissed. Click below button to bring it to closed state.',
-                      style: Theme.of(context).textTheme.subhead,
+                      style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
                   RaisedButton(

@@ -30,21 +30,21 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
             padding: const EdgeInsets.all(12.0),
             child: Text(
               'SlidingPanel can also act as a modal barrier. (Like, showModalBottomSheet())',
-              style: Theme.of(context).textTheme.subhead,
+              style: Theme.of(context).textTheme.subtitle1,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
             child: Text(
               'This example uses the \'showModalSlidingPanel()\' to show a simple SlidingPanel, and then we wait for a result from that panel.',
-              style: Theme.of(context).textTheme.subhead,
+              style: Theme.of(context).textTheme.subtitle1,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 36.0),
             child: Text(
               selected,
-              style: Theme.of(context).textTheme.title,
+              style: Theme.of(context).textTheme.headline6,
             ),
           ),
           RaisedButton(
@@ -106,7 +106,7 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                       headerWidget: PanelHeaderWidget(
                         headerContent: Text(
                           'For choice selection, you prefer...',
-                          style: Theme.of(context).textTheme.headline,
+                          style: Theme.of(context).textTheme.headline5,
                         ),
                         options: PanelHeaderOptions(
                           centerTitle: true,

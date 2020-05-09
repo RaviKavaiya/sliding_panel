@@ -26,35 +26,35 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
                 margin: EdgeInsets.all(24.0),
                 child: Text(
                   'This is SlidingPanel',
-                  style: Theme.of(context).textTheme.headline,
+                  style: Theme.of(context).textTheme.headline5,
                 ),
               ),
               Container(
                 margin: EdgeInsets.all(24.0),
                 child: Text(
                   'This panel doesn\'t contain bodyContent, but the SlidingPanel is attached to previous widget tree.',
-                  style: Theme.of(context).textTheme.title,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
               Container(
                 margin: EdgeInsets.all(24.0),
                 child: Text(
                   'Here you get some more content.',
-                  style: Theme.of(context).textTheme.title,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
               Container(
                 margin: EdgeInsets.all(24.0),
                 child: Text(
                   'Some useful content.',
-                  style: Theme.of(context).textTheme.title,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
               Container(
                 margin: EdgeInsets.all(24.0),
                 child: Text(
                   'See you later!',
-                  style: Theme.of(context).textTheme.title,
+                  style: Theme.of(context).textTheme.headline6,
                 ),
               ),
             ],
@@ -79,21 +79,21 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'You can also use SlidingPanel in a different way.',
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'Suppose you already have some app screen ready and want to add SlidingPanel to that screen, you don\'t need to change everything.',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     '\nJust put your old content and SlidingPanel in a Stack widget. \n\nFor example, this is the example!',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
               ],

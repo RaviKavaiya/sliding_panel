@@ -58,9 +58,9 @@ class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProv
         ),
       ];
 
-  static final textStyleSubHead = ThemeData.dark().textTheme.subhead.copyWith(fontSize: 20);
-  static final textStyleTitle = ThemeData.dark().textTheme.title.copyWith(fontSize: 22);
-  static final textStyleHeadline = ThemeData.dark().textTheme.headline.copyWith(fontSize: 24);
+  static final textStyleSubHead = ThemeData.dark().textTheme.subtitle1.copyWith(fontSize: 20);
+  static final textStyleTitle = ThemeData.dark().textTheme.headline6.copyWith(fontSize: 22);
+  static final textStyleHeadline = ThemeData.dark().textTheme.headline5.copyWith(fontSize: 24);
 
   @override
   Widget build(BuildContext context) {

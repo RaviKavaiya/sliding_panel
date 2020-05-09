@@ -33,14 +33,14 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
               padding: const EdgeInsets.all(4.0),
               child: Text(
                 'Welcome',
-                style: Theme.of(context).textTheme.title,
+                style: Theme.of(context).textTheme.headline6,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(4.0),
               child: Text(
                 'Swipe up... or tap outside to close',
-                style: Theme.of(context).textTheme.subhead,
+                style: Theme.of(context).textTheme.subtitle1,
               ),
             ),
           ],
@@ -57,7 +57,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
             margin: EdgeInsets.all(24.0),
             child: Text(
               'Some additional content!!!',
-              style: Theme.of(context).textTheme.title,
+              style: Theme.of(context).textTheme.headline6,
               textAlign: TextAlign.center,
             ),
           ),
@@ -71,21 +71,21 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
           margin: EdgeInsets.all(24.0),
           child: Text(
             'This is a SlidingPanel',
-            style: Theme.of(context).textTheme.headline,
+            style: Theme.of(context).textTheme.headline5,
           ),
         ),
         Container(
           margin: EdgeInsets.all(24.0),
           child: Text(
             'Swipe Up / Down to Expand and Collapse / Close the panel',
-            style: Theme.of(context).textTheme.title,
+            style: Theme.of(context).textTheme.headline6,
           ),
         ),
         Container(
           margin: EdgeInsets.all(24.0),
           child: Text(
             'Moreover, tap area outside the panel to collapse / close it!',
-            style: Theme.of(context).textTheme.subhead,
+            style: Theme.of(context).textTheme.subtitle1,
           ),
         ),
       ];
@@ -235,14 +235,14 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'PanelController can be used to control the panel. \nDifferent callbacks are also there, see console while you play with the panel',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
                     'To use all these features, first disable backdrop',
-                    style: Theme.of(context).textTheme.subhead,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
               ],
