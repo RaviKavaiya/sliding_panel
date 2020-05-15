@@ -1113,19 +1113,25 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
             _applyPaddings();
           }
 
-          // Wrap with material, so that panel content can use it
-          return Material(
-            type: MaterialType.transparency,
-            // Remove padding, as it is handled by useSafeConfig
-            child: MediaQuery.removePadding(
-              context: context,
-              removeTop: (isModal),
-              removeBottom: (isModal),
-              removeLeft: (isModal),
-              removeRight: (isModal),
-              child: _body,
-            ),
-          );
+          if (isModal) {
+            // Wrap with material, so that panel content can use it
+            // This is needed for modal panels only
+            // If applied to normal panels, the content wouldn't receive
+            // gestures, if the panel is put in [Stack].
+            return Material(
+              type: MaterialType.transparency,
+              child: MediaQuery.removePadding(
+                context: context,
+                removeTop: true,
+                removeBottom: true,
+                removeLeft: true,
+                removeRight: true,
+                child: _body,
+              ),
+            );
+          }
+
+          return _body;
         },
       ),
     );
