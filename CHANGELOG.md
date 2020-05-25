@@ -1,3 +1,7 @@
+## [1.2.3] - May 25, 2020
+
+- **Fixed:** When `SlidingPanel` was put inside a `Stack` widget, the content behind Panel, was not receiving gestures. [#15](https://github.com/RaviKavaiya/sliding_panel/pull/15) (Thanks to @live9080)
+
 ## [1.2.2] - May 09, 2020
 
 - **Fixed:** TextTheme deprecation warnings.
