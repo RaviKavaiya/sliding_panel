@@ -88,10 +88,17 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
 
     if (metadata.snapping == PanelSnapping.disabled) {
       // no panel snapping, just scroll the panel
-      _scrollPanel(
-        this,
-        velocity: velocity,
-      );
+
+      // If velocity is 0, don't scroll panel.
+      // Because, if the panel's height is manipulated by content of panel,
+      // (e.g., setAnimatedPanelPosition()) it will reset the position
+      if (velocity != 0) {
+        _scrollPanel(
+          this,
+          velocity: velocity,
+        );
+      }
+      super.goBallistic(0.0);
     } else {
       // snap the panel
 

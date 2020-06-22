@@ -1,3 +1,9 @@
+## [1.2.4] - 22 June, 2020
+
+- **Fixed:** When `snapping: PanelSnapping.disabled` was used, the panel did not receive gestures if it was in between closed and expanded position. [#19](https://github.com/RaviKavaiya/sliding_panel/issues/19) (Thanks to @Warpath)
+
+- **Fixed:** When panel's height was manipulated (e.g., `PanelController.setAnimatedPanelPosition()`) with the content of panel itself, it tried to reset its position.
+
 ## [1.2.3] - May 25, 2020
 
 - **Fixed:** When `SlidingPanel` was put inside a `Stack` widget, the content behind Panel, was not receiving gestures. [#15](https://github.com/RaviKavaiya/sliding_panel/pull/15) (Thanks to @live9080)
