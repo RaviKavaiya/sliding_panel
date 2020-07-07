@@ -127,10 +127,10 @@ class SlidingPanel extends StatefulWidget {
   /// Default : true
   final bool isDraggable;
 
-  /// The scroll physics that determine how
+  /// The scroll physics that determines how
   /// the scroll view should respond to user input.
   ///
-  /// Default: Platform Convention
+  /// Default: platform convention
   final ScrollPhysics physics;
 
   /// Specify the amount of [PanelContent.bodyContent]
