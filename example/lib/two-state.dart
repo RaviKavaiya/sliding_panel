@@ -6,7 +6,8 @@ class TwoStateExample extends StatefulWidget {
   _TwoStateExampleState createState() => _TwoStateExampleState();
 }
 
-class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProviderStateMixin {
+class _TwoStateExampleState extends State<TwoStateExample>
+    with SingleTickerProviderStateMixin {
   PanelController pc;
 
   AnimationController animationController;
@@ -26,7 +27,8 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
     super.dispose();
   }
 
-  String selected = "To go back, open the panel, select an option.\nYour favorite food will be shown here.";
+  String selected =
+      "To go back, open the panel, select an option.\nYour favorite food will be shown here.";
 
   BackPressBehavior behavior = BackPressBehavior.PERSIST;
 
@@ -170,7 +172,8 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
         child: SlidingPanel(
           panelController: pc,
           initialState: InitialPanelState.dismissed,
-          backdropConfig: BackdropConfig(enabled: true, shadowColor: Colors.blue),
+          backdropConfig:
+              BackdropConfig(enabled: true, shadowColor: Colors.blue),
           decoration: PanelDecoration(
             margin: EdgeInsets.all(8),
             borderRadius: BorderRadius.all(
@@ -268,14 +271,20 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
           // only close and expand...
           snapping: PanelSnapping.forced,
           panelClosedOptions: PanelClosedOptions(
-              sendResult: 'nothing', throwResult: 'cake', detachDragging: true, resetScrolling: true),
+              sendResult: 'nothing',
+              throwResult: 'cake',
+              detachDragging: true,
+              resetScrolling: true),
           // when panel closes, dont allow re-opening by drags, and
           // send and throw default results.
           size: PanelSize(closedHeight: 0.0, expandedHeight: 0.8),
           // closedHeight can also be > 0
           // we are explicitly giving expandedHeight here,
           // so if anything goes wrong, this size will be used
-          autoSizing: PanelAutoSizing(autoSizeExpanded: true, useMinExpanded: true, headerSizeIsClosed: true),
+          autoSizing: PanelAutoSizing(
+              autoSizeExpanded: true,
+              useMinExpanded: true,
+              headerSizeIsClosed: true),
           // we used 'useMinExpand'. Means, if autosizing goes above
           // 80% of screen (expandedHeight: 0.8), it will use 0.8 only.
           //
@@ -291,7 +300,8 @@ class _TwoStateExampleState extends State<TwoStateExample> with SingleTickerProv
             print('You thrown ${result.toString()} at me...');
           },
           onPanelSlide: (x) {
-            animationController.value = pc.percentPosition(pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
+            animationController.value = pc.percentPosition(
+                pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
           },
 //          isDraggable: false,
           // above will even won't allow user to drag the panel

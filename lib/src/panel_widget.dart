@@ -220,38 +220,6 @@ class SlidingPanel extends StatefulWidget {
   /// Default : [PanelPoppingBehavior.POP_AFTER_TAP]
   final PanelPoppingBehavior panelPoppingBehavior;
 
-  /// If [SlidingPanel.isDraggable] and [SlidingPanel.snapping] is applied,
-  /// you can control how much user can drag the panel by setting this value.
-  ///
-  /// If you restrict panel dragging at some point, the widgets provided
-  /// in [PanelContent.panelContent] WILL start scrolling after reaching the limit.
-  ///
-  /// This option has NO effect on two-state panels.
-  ///
-  /// Note that, the panel can still be resized (animated) using [PanelController].
-  /// In other words, even if you restrict dragging of the panel, you can
-  /// still animate the panel BEYOND below limit by using [PanelController].
-  ///
-  /// To apply restriction, [PanelDraggingDirection.ALLOW]
-  /// MUST not be given as parameter.
-  ///
-  /// Also, this option is only valid when [snapping] is applied.
-  ///
-  /// Given values will be clamped between
-  /// [PanelSize.closedHeight] and [PanelSize.expandedHeight].
-  ///
-  /// If you use this, [snappingTriggerPercentage] will have no effect
-  /// and panel will ALWAYS snap to a [PanelState].
-  ///
-  /// Default : [PanelDraggingDirection.ALLOW] with
-  /// value 0.0 (means allow the panel to be dragged)
-  @Deprecated('This feature is not stable. Though this works well under some circumstances, '
-      'it has some flaws that cause problems like panel not draggable, '
-      'content not scrollable, etc. So, use of this should be avoided.'
-      'This feature was deprecated since v1.0.3.'
-      'This feature may be removed in future releases.')
-  final Map<PanelDraggingDirection, double> allowedDraggingTill;
-
   /// This helps you to execute specific actions when panel is closed.
   ///
   /// Use case example : You are waiting for the user to perform a
@@ -299,8 +267,7 @@ class SlidingPanel extends StatefulWidget {
     Key key,
     this.initialState = InitialPanelState.closed,
     this.animatedAppearing = false,
-    @required
-        this.content,
+    @required this.content,
     this.size = const PanelSize(),
     this.maxWidth = const PanelMaxWidth(),
     this.decoration = const PanelDecoration(),
@@ -319,12 +286,6 @@ class SlidingPanel extends StatefulWidget {
     this.isTwoStatePanel = false,
     this.backPressBehavior = BackPressBehavior.POP,
     this.panelPoppingBehavior = PanelPoppingBehavior.POP_AFTER_TAP,
-    @Deprecated('This feature is not stable. Though this works well under some circumstances, '
-        'it has some flaws that cause problems like panel not draggable, '
-        'content not scrollable, etc. So, use of this should be avoided.'
-        'This feature was deprecated since v1.0.3.'
-        'This feature may be removed in future releases.')
-        this.allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
     this.panelClosedOptions = const PanelClosedOptions(),
     this.safeAreaConfig = const SafeAreaConfig.all(),
     this.onPanelSlide,
@@ -362,7 +323,6 @@ class SlidingPanel extends StatefulWidget {
     this.onThrowResult,
   })  : parallaxSlideAmount = 0.0,
         animatedAppearing = false,
-        allowedDraggingTill = const {PanelDraggingDirection.ALLOW: 0.0},
         _isModal = true;
 
   @override

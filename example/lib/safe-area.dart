@@ -6,7 +6,8 @@ class SafeAreaExample extends StatefulWidget {
   _SafeAreaExampleState createState() => _SafeAreaExampleState();
 }
 
-class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProviderStateMixin {
+class _SafeAreaExampleState extends State<SafeAreaExample>
+    with SingleTickerProviderStateMixin {
   PanelController pc;
 
   bool safe = true;
@@ -58,9 +59,12 @@ class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProv
         ),
       ];
 
-  static final textStyleSubHead = ThemeData.dark().textTheme.subtitle1.copyWith(fontSize: 20);
-  static final textStyleTitle = ThemeData.dark().textTheme.headline6.copyWith(fontSize: 22);
-  static final textStyleHeadline = ThemeData.dark().textTheme.headline5.copyWith(fontSize: 24);
+  static final textStyleSubHead =
+      ThemeData.dark().textTheme.subtitle1.copyWith(fontSize: 20);
+  static final textStyleTitle =
+      ThemeData.dark().textTheme.headline6.copyWith(fontSize: 22);
+  static final textStyleHeadline =
+      ThemeData.dark().textTheme.headline5.copyWith(fontSize: 24);
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +80,8 @@ class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProv
             enabled: true,
             shadowColor: Color.fromRGBO(74, 118, 129, 1),
           ),
-          size: PanelSize(closedHeight: 0.0, collapsedHeight: 0.5, expandedHeight: 1.0),
+          size: PanelSize(
+              closedHeight: 0.0, collapsedHeight: 0.5, expandedHeight: 1.0),
           decoration: PanelDecoration(
             borderRadius: BorderRadius.all(Radius.circular(16)),
             backgroundColor: Color.fromRGBO(63, 96, 127, 1),
@@ -154,7 +159,8 @@ class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProv
                       padding: EdgeInsets.all(0),
                       children: <Widget>[
                         Padding(
-                          padding: const EdgeInsets.only(top: 48, bottom: 8.0, left: 8.0, right: 8.0),
+                          padding: const EdgeInsets.only(
+                              top: 48, bottom: 8.0, left: 8.0, right: 8.0),
                           child: Text(
                             'This example uses `safeAreaConfig` in the panel.',
                             style: textStyleSubHead,
@@ -209,7 +215,8 @@ class _SafeAreaExampleState extends State<SafeAreaExample> with SingleTickerProv
             ),
           ),
           onPanelSlide: (x) {
-            animationController.value = pc.percentPosition(pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
+            animationController.value = pc.percentPosition(
+                pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
           },
           parallaxSlideAmount: 0.0,
           snapping: PanelSnapping.forced,

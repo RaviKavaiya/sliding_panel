@@ -127,7 +127,10 @@ class _SizingExampleState extends State<SizingExample> {
             ),
           ),
         ),
-        size: PanelSize(closedHeight: _closed, collapsedHeight: _collapsed, expandedHeight: _expanded),
+        size: PanelSize(
+            closedHeight: _closed,
+            collapsedHeight: _collapsed,
+            expandedHeight: _expanded),
         snapping: PanelSnapping.enabled,
         initialState: InitialPanelState.collapsed,
         animatedAppearing: true,

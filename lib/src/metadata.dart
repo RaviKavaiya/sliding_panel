@@ -8,7 +8,6 @@ class _PanelMetadata {
 
   double closedHeight, collapsedHeight, expandedHeight;
   double providedExpandedHeight;
-  double dragClosedHeight, dragExpandedHeight;
 
   bool isTwoStatePanel;
   bool isDraggable;
@@ -24,8 +23,6 @@ class _PanelMetadata {
   SafeAreaConfig safeAreaConfig;
 
   final InitialPanelState initialPanelState;
-
-  Map<PanelDraggingDirection, double> allowedDraggingTill;
 
   final ValueNotifier<double> _heightInternal;
 
@@ -46,31 +43,20 @@ class _PanelMetadata {
     @required this.dragMultiplier,
     @required this.safeAreaConfig,
     @required this.initialPanelState,
-    @required this.allowedDraggingTill,
     @required this.listener,
-  })  : _heightInternal = ValueNotifier<double>(
-            (isModal || initialPanelState == InitialPanelState.dismissed || animatedAppearing)
-                ? 0.0
-                : initialPanelState == InitialPanelState.closed
-                    ? closedHeight
-                    : initialPanelState == InitialPanelState.collapsed
-                        ? isTwoStatePanel ? expandedHeight : collapsedHeight
-                        : expandedHeight)
+  })  : _heightInternal = ValueNotifier<double>((isModal ||
+                initialPanelState == InitialPanelState.dismissed ||
+                animatedAppearing)
+            ? 0.0
+            : initialPanelState == InitialPanelState.closed
+                ? closedHeight
+                : initialPanelState == InitialPanelState.collapsed
+                    ? isTwoStatePanel ? expandedHeight : collapsedHeight
+                    : expandedHeight)
           ..addListener(listener),
         totalHeight = double.infinity,
         _isBodyDrag = ValueNotifier<bool>(false),
-        providedExpandedHeight = expandedHeight {
-    if (allowedDraggingTill.containsKey(PanelDraggingDirection.UP)) {
-      dragExpandedHeight = allowedDraggingTill[PanelDraggingDirection.UP];
-    } else {
-      dragExpandedHeight = expandedHeight;
-    }
-    if (allowedDraggingTill.containsKey(PanelDraggingDirection.DOWN)) {
-      dragClosedHeight = allowedDraggingTill[PanelDraggingDirection.DOWN];
-    } else {
-      dragClosedHeight = closedHeight;
-    }
-  }
+        providedExpandedHeight = expandedHeight;
 
   bool get isClosed => _heightInternal.value <= closedHeight;
 
@@ -86,7 +72,9 @@ class _PanelMetadata {
 
     // modal panels ALWAYS initialize dismissed
     // dismissed panels also
-    if (isModal || initialPanelState == InitialPanelState.dismissed || animatedAppearing)
+    if (isModal ||
+        initialPanelState == InitialPanelState.dismissed ||
+        animatedAppearing)
       currentHeight = 0.0;
     else
       currentHeight = initialPanelState == InitialPanelState.closed
@@ -115,8 +103,11 @@ class _PanelMetadata {
   void addPixels(double pixels, {bool shouldMultiply = false}) {
     if (totalHeight == 0) return;
 
-    final double toAdd = ((pixels * (shouldMultiply ? dragMultiplier : 1)) / totalHeight * expandedHeight);
+    final double toAdd = ((pixels * (shouldMultiply ? dragMultiplier : 1)) /
+        totalHeight *
+        expandedHeight);
 
-    currentHeight = (currentHeight + toAdd)._safeClamp(closedHeight, expandedHeight);
+    currentHeight =
+        (currentHeight + toAdd)._safeClamp(closedHeight, expandedHeight);
   }
 }

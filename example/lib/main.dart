@@ -68,7 +68,8 @@ class _MyHomePageState extends State<MyHomePage> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SeparateContentExample()),
+                MaterialPageRoute(
+                    builder: (context) => SeparateContentExample()),
               );
             },
             title: Text('Panel without bodyContent'),

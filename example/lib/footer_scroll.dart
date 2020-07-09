@@ -41,7 +41,15 @@ class _MyListItemState extends State<MyListItem> {
 class _FooterAndScrollState extends State<FooterAndScroll> {
   PanelController pc;
 
-  static final List<String> food = ['Pizza', 'Sandwich', 'Pasta', 'Punjabi', 'Burger', 'Shakes', 'Noodles'];
+  static final List<String> food = [
+    'Pizza',
+    'Sandwich',
+    'Pasta',
+    'Punjabi',
+    'Burger',
+    'Shakes',
+    'Noodles'
+  ];
 
   List<MyListItem> foodItems;
 

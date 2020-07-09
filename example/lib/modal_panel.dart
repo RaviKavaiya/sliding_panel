@@ -41,7 +41,8 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 36.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 12.0, vertical: 36.0),
             child: Text(
               selected,
               style: Theme.of(context).textTheme.headline6,
@@ -58,12 +59,14 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                 panel: (context) {
                   return SlidingPanel(
                     panelController: pc,
-                    safeAreaConfig: SafeAreaConfig.all(removePaddingFromContent: true),
+                    safeAreaConfig:
+                        SafeAreaConfig.all(removePaddingFromContent: true),
                     backdropConfig: BackdropConfig(enabled: true),
                     isTwoStatePanel: true,
                     snapping: PanelSnapping.forced,
                     size: PanelSize(closedHeight: 0.00, expandedHeight: 0.8),
-                    autoSizing: PanelAutoSizing(autoSizeExpanded: true, headerSizeIsClosed: true),
+                    autoSizing: PanelAutoSizing(
+                        autoSizeExpanded: true, headerSizeIsClosed: true),
                     duration: Duration(milliseconds: 500),
                     //
                     // panel will appear expanded
@@ -114,8 +117,11 @@ class _ModalPanelExampleState extends State<ModalPanelExample> {
                           forceElevated: true,
                           primary: false,
                         ),
-                        onTap: () => pc.currentState == PanelState.closed ? pc.expand() : pc.close(),
-                        decoration: PanelDecoration(padding: EdgeInsets.all(16)),
+                        onTap: () => pc.currentState == PanelState.closed
+                            ? pc.expand()
+                            : pc.close(),
+                        decoration:
+                            PanelDecoration(padding: EdgeInsets.all(16)),
                       ),
                     ),
                   );

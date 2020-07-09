@@ -101,14 +101,18 @@ class _SeparateContentExampleState extends State<SeparateContentExample> {
           ),
           SlidingPanel(
             panelController: pc,
-            backdropConfig: BackdropConfig(enabled: true, closeOnTap: true, shadowColor: Colors.blue),
+            backdropConfig: BackdropConfig(
+                enabled: true, closeOnTap: true, shadowColor: Colors.blue),
             content: PanelContent(
               panelContent: _content,
               bodyContent: null,
               // see this...
             ),
             snapping: PanelSnapping.enabled,
-            size: PanelSize(closedHeight: 0.15, collapsedHeight: 0.40, expandedHeight: 0.85),
+            size: PanelSize(
+                closedHeight: 0.15,
+                collapsedHeight: 0.40,
+                expandedHeight: 0.85),
             autoSizing: PanelAutoSizing(
               autoSizeExpanded: true,
             ),

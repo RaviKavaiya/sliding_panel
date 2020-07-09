@@ -73,7 +73,8 @@ class PanelCollapsedWidget {
   /// Default : true
   final bool hideInExpandedOnly;
 
-  const PanelCollapsedWidget({this.collapsedContent, this.hideInExpandedOnly = true});
+  const PanelCollapsedWidget(
+      {this.collapsedContent, this.hideInExpandedOnly = true});
 }
 
 /// The widget that will be shown above the panel,
@@ -669,34 +670,6 @@ enum PanelPoppingBehavior {
   POP_IMMEDIATELY,
 }
 
-/// If [SlidingPanel.isDraggable] and [SlidingPanel.snapping] is applied,
-/// you can control how much user can drag the panel by setting this value.
-///
-/// If you restrict panel dragging at some point, the widgets provided
-/// in [PanelContent.panelContent] WILL start scrolling after reaching the limit.
-///
-/// This option has NO effect on two-state panels.
-///
-/// Note that, the panel can still be resized (animated) using [PanelController].
-/// In other words, even if you restrict dragging of the panel, you can
-/// still animate the panel BEYOND below limit by using [PanelController].
-///
-/// This is used in conjunction with [SlidingPanel.allowedDraggingTill].
-///
-/// Default : [ALLOW]
-enum PanelDraggingDirection {
-  /// Allows the panel to be dragged in any position, no restriction.
-  ///
-  /// This is the default.
-  ALLOW,
-
-  /// Apply the restriction, when user is dragging the panel upside.
-  UP,
-
-  /// Apply the restriction, when user is dragging the panel downside.
-  DOWN,
-}
-
 /// This helps you to execute specific actions when panel is closed.
 ///
 /// Use case example : You are waiting for the user to perform a
@@ -752,7 +725,10 @@ class PanelClosedOptions {
   final Object throwResult;
 
   const PanelClosedOptions(
-      {this.detachDragging = false, this.resetScrolling = false, this.sendResult, this.throwResult});
+      {this.detachDragging = false,
+      this.resetScrolling = false,
+      this.sendResult,
+      this.throwResult});
 }
 
 /// Apply necessary top, bottom and sides (left and right) padding to

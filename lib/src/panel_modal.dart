@@ -1,9 +1,11 @@
 part of sliding_panel;
 
 class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
-  _SlidingPanelModalRoute({@required this.panelRouteBuilder, @required this.duration});
+  _SlidingPanelModalRoute(
+      {@required this.panelRouteBuilder, @required this.duration});
 
-  final SlidingPanel Function(_SlidingPanelModalRoute panelModalRoute) panelRouteBuilder;
+  final SlidingPanel Function(_SlidingPanelModalRoute panelModalRoute)
+      panelRouteBuilder;
   final Duration duration;
 
   @override
@@ -16,7 +18,8 @@ class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
   String get barrierLabel => 'Sliding Panel Modal';
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+  Widget buildPage(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation) {
     return panelRouteBuilder(this);
   }
 
@@ -42,7 +45,6 @@ class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
 /// [SlidingPanel.parallaxSlideAmount] will not work.
 /// [SlidingPanel.animatedAppearing] is ignored, as the modal panel always
 /// animtes while it appears.
-/// [SlidingPanel.allowedDraggingTill] will not work.
 /// [PanelContent.bodyContent] is ignored.
 ///
 /// When initialized (this function is called), a new route will be pushed.
@@ -75,7 +77,8 @@ class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
 /// the route. At that time, currentHeight=0.0 ([PanelState.dismissed])
 /// pops the route.
 Future<T> showModalSlidingPanel<T>(
-    {@required BuildContext context, @required SlidingPanel Function(BuildContext) panel}) {
+    {@required BuildContext context,
+    @required SlidingPanel Function(BuildContext) panel}) {
   if (panel != null) {
     SlidingPanel _panel = panel(context);
 

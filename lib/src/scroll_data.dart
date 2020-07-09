@@ -20,7 +20,8 @@ class PanelScrollData {
   /// Whether the scrollable content is at its starting position.
   bool get atStart {
     if (scrollController.position.atEdge) {
-      if (scrollController.position.pixels == scrollController.position.minScrollExtent) return true;
+      if (scrollController.position.pixels ==
+          scrollController.position.minScrollExtent) return true;
     } else {
       if (scrollController.position.pixels < 0.0) return true;
     }
@@ -30,7 +31,8 @@ class PanelScrollData {
   /// Whether the scrollable content is at its ending position (i.e., scrolled to end).
   bool get atEnd {
     if (scrollController.position.atEdge) {
-      if (scrollController.position.pixels == scrollController.position.maxScrollExtent) return true;
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent) return true;
     }
     return false;
   }

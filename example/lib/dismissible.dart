@@ -107,7 +107,8 @@ class _DismissibleExampleState extends State<DismissibleExample> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 12, right: 12, top: 32, bottom: 4),
+                  padding: const EdgeInsets.only(
+                      left: 12, right: 12, top: 32, bottom: 4),
                   child: Text(
                     'About the \'dismissed\' state: ',
                     style: Theme.of(context).textTheme.headline6,
@@ -142,7 +143,8 @@ class _DismissibleExampleState extends State<DismissibleExample> {
             dragFromBody: isBackdrop,
             collapseOnTap: isBackdrop,
             closeOnTap: isBackdrop),
-        size: PanelSize(closedHeight: 0.15, collapsedHeight: 0.30, expandedHeight: 0.60),
+        size: PanelSize(
+            closedHeight: 0.15, collapsedHeight: 0.30, expandedHeight: 0.60),
         duration: Duration(milliseconds: 500),
         parallaxSlideAmount: 0.0,
       ),

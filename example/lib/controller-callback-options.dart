@@ -9,7 +9,11 @@ class CustomizeDemo extends StatefulWidget {
 class _CustomizeDemoState extends State<CustomizeDemo> {
   PanelController pc;
 
-  bool draggable = true, snap = true, backdrop = true, dragBody = true, snapForced = true;
+  bool draggable = true,
+      snap = true,
+      backdrop = true,
+      dragBody = true,
+      snapForced = true;
   bool additional = false;
 
   @override
@@ -98,8 +102,11 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
       ),
       body: SlidingPanel(
         panelController: pc,
-        backdropConfig:
-            BackdropConfig(enabled: backdrop, closeOnTap: true, shadowColor: Colors.blue, dragFromBody: dragBody),
+        backdropConfig: BackdropConfig(
+            enabled: backdrop,
+            closeOnTap: true,
+            shadowColor: Colors.blue,
+            dragFromBody: dragBody),
         content: PanelContent(
           panelContent: _content,
           collapsedWidget: PanelCollapsedWidget(
@@ -136,7 +143,8 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                       },
                     ),
                     RaisedButton(
-                      child: Text("Toggle additional content, rebuild then expand"),
+                      child: Text(
+                          "Toggle additional content, rebuild then expand"),
                       onPressed: () {
                         setState(() {
                           additional = !additional;
@@ -212,7 +220,8 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                       label: Text("Drag from body"),
                       onPressed: () {
                         setState(() {
-                          dragBody = !dragBody; // if true, panel can also be moved by dragging over body
+                          dragBody =
+                              !dragBody; // if true, panel can also be moved by dragging over body
                         });
                       },
                     ),
@@ -224,7 +233,8 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                       label: Text("Snap forcefully"),
                       onPressed: () {
                         setState(() {
-                          snapForced = !snapForced; // if true, panel will ALWAYS snap
+                          snapForced =
+                              !snapForced; // if true, panel will ALWAYS snap
                           if (snapForced) snap = true;
                         });
                       },
@@ -266,7 +276,9 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         },
         duration: Duration(milliseconds: 1000),
         parallaxSlideAmount: 0.0,
-        snapping: snapForced ? PanelSnapping.forced : snap ? PanelSnapping.enabled : PanelSnapping.disabled,
+        snapping: snapForced
+            ? PanelSnapping.forced
+            : snap ? PanelSnapping.enabled : PanelSnapping.disabled,
         isDraggable: draggable,
         decoration: PanelDecoration(
           backgroundColor: Colors.orange[200],

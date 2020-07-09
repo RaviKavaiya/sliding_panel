@@ -27,7 +27,8 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     return super.applyContentDimensions(
-        minScrollExtent - metadata.extraClosedHeight, maxScrollExtent + metadata.extraExpandedHeight);
+        minScrollExtent - metadata.extraClosedHeight,
+        maxScrollExtent + metadata.extraExpandedHeight);
   }
 
   @override
@@ -59,7 +60,8 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void goBallistic(double velocity) {
     // like onDragEnd
-    if ((panel._controller.currentState == PanelState.closed) && (panel.widget.panelClosedOptions.detachDragging)) {
+    if ((panel._controller.currentState == PanelState.closed) &&
+        (panel.widget.panelClosedOptions.detachDragging)) {
       super.goBallistic(velocity);
       return;
     }
@@ -75,7 +77,9 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
       return;
     }
 
-    if (((velocity.abs() == 0.0) || (velocity < 0.0 && shouldListScroll) || (velocity > 0.0 && metadata.isExpanded)) &&
+    if (((velocity.abs() == 0.0) ||
+            (velocity < 0.0 && shouldListScroll) ||
+            (velocity > 0.0 && metadata.isExpanded)) &&
         (panel._controller.currentState != PanelState.indefinite)) {
       // when dragged and released slowly in middle OR at start with scrolling OR at end
       // and panel is not in-between
@@ -102,25 +106,23 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
     } else {
       // snap the panel
 
-      if (!((panel._metadata.allowedDraggingTill.containsKey(PanelDraggingDirection.DOWN)) ||
-          (panel._metadata.allowedDraggingTill.containsKey(PanelDraggingDirection.UP)))) {
-        // no restriction
-        double percent = ((metadata.totalHeight * metadata.snappingTriggerPercentage) / 100);
+      double percent =
+          ((metadata.totalHeight * metadata.snappingTriggerPercentage) / 100);
 
-        percent = percent._safeClamp(0.0, 750.0);
+      percent = percent._safeClamp(0.0, 750.0);
 
-        if (percent > 0.0) {
-          if (velocity.abs() <= percent) {
-            _scrollPanel(
-              this,
-              velocity: velocity,
-            );
-            return;
-          }
+      if (percent > 0.0) {
+        if (velocity.abs() <= percent) {
+          _scrollPanel(
+            this,
+            velocity: velocity,
+          );
+          return;
         }
       }
 
-      if ((velocity.abs() == 0.0) && (metadata.snapping == PanelSnapping.forced)) {
+      if ((velocity.abs() == 0.0) &&
+          (metadata.snapping == PanelSnapping.forced)) {
         if (velocity.isNegative)
           velocity = -0.1;
         else
@@ -161,13 +163,15 @@ class _PanelScrollController extends ScrollController {
 
   final _SlidingPanelState panel;
 
-  _PanelScrollController({double initScrollOffset = 0.0, this.metadata, this.panel})
+  _PanelScrollController(
+      {double initScrollOffset = 0.0, this.metadata, this.panel})
       : super(initialScrollOffset: initScrollOffset);
 
   _PanelScrollPosition _scrollPosition;
 
   @override
-  _PanelScrollPosition createScrollPosition(ScrollPhysics physics, ScrollContext context, ScrollPosition oldPosition) {
+  _PanelScrollPosition createScrollPosition(ScrollPhysics physics,
+      ScrollContext context, ScrollPosition oldPosition) {
     _scrollPosition = _PanelScrollPosition(
       physics: physics,
       context: context,

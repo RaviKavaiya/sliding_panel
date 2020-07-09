@@ -1,3 +1,9 @@
+## [1.3.0] - 09 July, 2020
+
+- **Fixed:** When `PanelHeaderWidget` was removed from panel at runtime and then using `PanelController.rebuild()` caused the header's height being miscalculated. [#21](https://github.com/RaviKavaiya/sliding_panel/issues/21) (Thanks to @FilipeLarga)
+
+- **Breaking change:** The parameter `allowedDraggingTill` is now completely removed. It was deprecated since `v1.0.3`.
+
 ## [1.2.4] - 22 June, 2020
 
 - **Fixed:** When `snapping: PanelSnapping.disabled` was used, the panel did not receive gestures if it was in between closed and expanded position. [#19](https://github.com/RaviKavaiya/sliding_panel/issues/19) (Thanks to @Warpath)
