@@ -103,6 +103,7 @@ Future<T> showModalSlidingPanel<T>(
             snapping: _panel.snapping,
             snappingTriggerPercentage: _panel.snappingTriggerPercentage,
             isDraggable: _panel.isDraggable,
+            physics: _panel.physics,
             dragMultiplier: _panel.dragMultiplier,
             duration: _panel.duration,
             curve: _panel.curve,

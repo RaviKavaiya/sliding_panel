@@ -127,6 +127,12 @@ class SlidingPanel extends StatefulWidget {
   /// Default : true
   final bool isDraggable;
 
+  /// The scroll physics that determines how
+  /// the scroll view should respond to user input.
+  ///
+  /// Default: platform convention
+  final ScrollPhysics physics;
+
   /// Specify the amount of [PanelContent.bodyContent]
   /// to slide up when panel slides.
   ///
@@ -305,6 +311,7 @@ class SlidingPanel extends StatefulWidget {
     this.snapping = PanelSnapping.disabled,
     this.snappingTriggerPercentage = 0.0,
     this.isDraggable = true,
+    this.physics,
     this.parallaxSlideAmount = 0.2,
     this.dragMultiplier = 1.0,
     this.duration = const Duration(milliseconds: 1000),
@@ -341,6 +348,7 @@ class SlidingPanel extends StatefulWidget {
     this.snapping = PanelSnapping.disabled,
     this.snappingTriggerPercentage = 0.0,
     this.isDraggable = true,
+    this.physics,
     this.dragMultiplier = 1.0,
     this.duration = const Duration(milliseconds: 1000),
     this.curve = Curves.fastOutSlowIn,

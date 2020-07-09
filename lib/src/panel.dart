@@ -939,6 +939,7 @@ class _SlidingPanelState extends State<SlidingPanel> with TickerProviderStateMix
           child: Material(
             type: MaterialType.transparency,
             child: CustomScrollView(
+              physics: widget.physics,
               controller: _scrollController,
               slivers: <Widget>[
                 // header
