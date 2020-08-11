@@ -1,3 +1,11 @@
+## [1.3.1] - 11 August, 2020
+
+- **Fixed:** `PanelHeaderWidget` did not respect the `PanelHeaderOptions.centerTitle`.
+
+- **Fixed:** When using modal panels with `SafeAreaConfig`, if the panel's content was larger, the top padding was not applied properly.
+
+- **Fixed:** If panel was put in Scaffold without `AppBar`, panel occupied more space unnecessarily.
+
 ## [1.3.0] - 09 July, 2020
 
 - **Fixed:** When `PanelHeaderWidget` was removed from panel at runtime and then using `PanelController.rebuild()` caused the header's height being miscalculated. [#21](https://github.com/RaviKavaiya/sliding_panel/issues/21) (Thanks to @FilipeLarga)

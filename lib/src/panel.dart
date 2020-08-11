@@ -436,6 +436,15 @@ class _SlidingPanelState extends State<SlidingPanel>
               }
             }
 
+            if (isModal) {
+              // This calculation is needed here. Because, if modal panel needs bottom padding,
+              // top padding would be less to avoid intrusions.
+              if ((_metadata.totalHeight + tempTopPadding + bottomPadding) >=
+                  (_metadata.constrainedHeight)) {
+                topPadding += bottomPadding;
+              }
+            }
+
             // If bottom margin is given, add it to top padding
             if ((decoration?.margin?.bottom ?? 0) > 0.0) {
               additionalTopPadding += decoration.margin.bottom;
@@ -855,8 +864,8 @@ class _SlidingPanelState extends State<SlidingPanel>
         actionsIconTheme: null,
         expandedHeight: null,
         //
-        primary: false,
-        centerTitle: true,
+        primary: false, // Handled in Padding
+        centerTitle: header.options.centerTitle,
         elevation: header.options.elevation,
         forceElevated: header.options.forceElevated,
         pinned: header.options.alwaysOnTop,
@@ -1139,6 +1148,8 @@ class _SlidingPanelState extends State<SlidingPanel>
 
   @override
   Widget build(BuildContext context) {
+    final safeAreaNonModal = (MediaQuery.of(context).padding.top > 0);
+
     return WillPopScope(
       onWillPop: () => _decidePop(this),
       child: LayoutBuilder(
@@ -1147,7 +1158,6 @@ class _SlidingPanelState extends State<SlidingPanel>
               _metadata.expandedHeight * constraints.biggest.height;
 
           _metadata.constrainedHeight = constraints.biggest.height - topPadding;
-
           _metadata.constrainedWidth = constraints.biggest.width;
 
           maxWidthPortrait = min(
@@ -1172,6 +1182,8 @@ class _SlidingPanelState extends State<SlidingPanel>
             // gestures, if the panel is put in [Stack].
             return Material(
               type: MaterialType.transparency,
+              // Remove padding here. Because, modal panel uses its own route and we have to prevent
+              // it from applying padding automatically
               child: MediaQuery.removePadding(
                 context: context,
                 removeTop: true,
@@ -1181,9 +1193,16 @@ class _SlidingPanelState extends State<SlidingPanel>
                 child: _body,
               ),
             );
+          } else {
+            // In normal panels, if the parent Scaffold contains appBar, the top padding in
+            // MediaQuery would be == 0.0. But, if no appBar is given, it would be > 0.0. So,
+            // remove that padding.
+            return MediaQuery.removePadding(
+              context: context,
+              removeTop: safeAreaNonModal,
+              child: _body,
+            );
           }
-
-          return _body;
         },
       ),
     );
