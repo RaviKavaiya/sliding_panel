@@ -278,7 +278,9 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
         parallaxSlideAmount: 0.0,
         snapping: snapForced
             ? PanelSnapping.forced
-            : snap ? PanelSnapping.enabled : PanelSnapping.disabled,
+            : snap
+                ? PanelSnapping.enabled
+                : PanelSnapping.disabled,
         isDraggable: draggable,
         decoration: PanelDecoration(
           backgroundColor: Colors.orange[200],

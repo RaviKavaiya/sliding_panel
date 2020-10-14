@@ -8,9 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
-
-part 'src/app_bar_mod.dart';
 
 part 'src/config.dart';
 

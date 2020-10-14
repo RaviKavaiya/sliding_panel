@@ -1,3 +1,7 @@
+## [1.3.2] - 14 October, 2020
+
+- Use built-in AppBar for `PanelHeaderWidget` instead of custom implementation.
+
 ## [1.3.1] - 11 August, 2020
 
 - **Fixed:** `PanelHeaderWidget` did not respect the `PanelHeaderOptions.centerTitle`.

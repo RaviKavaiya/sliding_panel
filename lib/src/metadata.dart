@@ -51,7 +51,9 @@ class _PanelMetadata {
             : initialPanelState == InitialPanelState.closed
                 ? closedHeight
                 : initialPanelState == InitialPanelState.collapsed
-                    ? isTwoStatePanel ? expandedHeight : collapsedHeight
+                    ? isTwoStatePanel
+                        ? expandedHeight
+                        : collapsedHeight
                     : expandedHeight)
           ..addListener(listener),
         totalHeight = double.infinity,
@@ -80,7 +82,9 @@ class _PanelMetadata {
       currentHeight = initialPanelState == InitialPanelState.closed
           ? closedHeight
           : initialPanelState == InitialPanelState.collapsed
-              ? isTwoStatePanel ? expandedHeight : collapsedHeight
+              ? isTwoStatePanel
+                  ? expandedHeight
+                  : collapsedHeight
               : expandedHeight;
 
     _addHeightListener(listener);

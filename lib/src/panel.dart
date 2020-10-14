@@ -817,7 +817,7 @@ class _SlidingPanelState extends State<SlidingPanel>
     super.dispose();
   }
 
-  Widget get _headerSliver => SlidingPanelSliverAppBar(
+  Widget get _headerSliver => SliverAppBar(
         title: Material(
           type: MaterialType.transparency,
           child: GestureDetector(
@@ -857,7 +857,7 @@ class _SlidingPanelState extends State<SlidingPanel>
             header.decoration.backgroundColor ?? Theme.of(context).canvasColor,
         iconTheme: IconThemeData(color: _appBarIconsColor),
         automaticallyImplyLeading: false,
-        titleHeight: _calculatedHeaderHeight,
+        toolbarHeight: _calculatedHeaderHeight,
         stretch: false,
         flexibleSpace: null,
         bottom: null,
