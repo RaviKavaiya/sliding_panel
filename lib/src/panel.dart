@@ -370,6 +370,8 @@ class _SlidingPanelState extends State<SlidingPanel>
 
   void _applyPaddings() {
     SchedulerBinding.instance.addPostFrameCallback((x) {
+      if (!this.mounted) return;
+
       setState(() {
         // Initialize with 0.
         topPadding = bottomPadding =
