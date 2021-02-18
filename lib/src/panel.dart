@@ -871,6 +871,7 @@ class _SlidingPanelState extends State<SlidingPanel>
         pinned: header.options.alwaysOnTop,
         floating: header.options.floating,
         snap: header.options.floating,
+        shadowColor: header.options.shadowColor,
         leading: header.options.leading == null
             ? null
             : Padding(

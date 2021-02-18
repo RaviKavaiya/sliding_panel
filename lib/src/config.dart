@@ -370,6 +370,14 @@ class PanelHeaderOptions {
   /// Default : [MainAxisAlignment.center]
   final MainAxisAlignment iconsAlignment;
 
+  /// The color to paint the shadow below the app bar. Typically this should be set
+  /// along with [elevation].
+  ///
+  /// If this property is null, then [AppBarTheme.shadowColor] of
+  /// [ThemeData.appBarTheme] is used, if that is also null, the default value
+  /// is fully opaque black.
+  final Color shadowColor;
+
   const PanelHeaderOptions({
     this.primary = true,
     this.centerTitle = false,
@@ -380,6 +388,7 @@ class PanelHeaderOptions {
     this.leading,
     this.trailing,
     this.iconsAlignment = MainAxisAlignment.center,
+    this.shadowColor,
   });
 }
 
