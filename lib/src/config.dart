@@ -108,11 +108,20 @@ class PanelHeaderWidget {
   /// it will take precedence.
   final VoidCallback onTap;
 
+  /// The color to paint the shadow below the app bar. Typically this should be set
+  /// along with [elevation].
+  ///
+  /// If this property is null, then [AppBarTheme.shadowColor] of
+  /// [ThemeData.appBarTheme] is used, if that is also null, the default value
+  /// is fully opaque black.
+  final Color shadowColor;
+
   const PanelHeaderWidget({
     this.headerContent,
     this.decoration = const PanelDecoration(),
     this.options = const PanelHeaderOptions(),
     this.onTap,
+    this.shadowColor,
   });
 }
 
