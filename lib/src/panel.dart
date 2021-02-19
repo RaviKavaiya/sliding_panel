@@ -370,6 +370,8 @@ class _SlidingPanelState extends State<SlidingPanel>
 
   void _applyPaddings() {
     SchedulerBinding.instance.addPostFrameCallback((x) {
+      if (!this.mounted) return;
+
       setState(() {
         // Initialize with 0.
         topPadding = bottomPadding =
@@ -871,6 +873,7 @@ class _SlidingPanelState extends State<SlidingPanel>
         pinned: header.options.alwaysOnTop,
         floating: header.options.floating,
         snap: header.options.floating,
+        shadowColor: header.options.shadowColor,
         leading: header.options.leading == null
             ? null
             : Padding(
