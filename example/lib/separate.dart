@@ -7,7 +7,7 @@ class SeparateContentExample extends StatefulWidget {
 }
 
 class _SeparateContentExampleState extends State<SeparateContentExample> {
-  PanelController pc;
+  PanelController? pc;
 
   @override
   void initState() {

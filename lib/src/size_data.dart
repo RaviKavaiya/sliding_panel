@@ -12,16 +12,16 @@ part of sliding_panel;
 class PanelSizeData {
   final double _closedHeight, _collapsedHeight, _expandedHeight;
   final double _totalHeight;
-  final double _constrainedHeight, _constrainedWidth;
+  final double? _constrainedHeight, _constrainedWidth;
 
-  PanelSizeData._(
-      {@required double closedHeight,
-      @required double collapsedHeight,
-      @required double expandedHeight,
-      @required double totalHeight,
-      @required double constrainedHeight,
-      @required double constrainedWidth})
-      : _closedHeight = closedHeight,
+  PanelSizeData._({
+    required double closedHeight,
+    required double collapsedHeight,
+    required double expandedHeight,
+    required double totalHeight,
+    required double? constrainedHeight,
+    required double? constrainedWidth,
+  })   : _closedHeight = closedHeight,
         _collapsedHeight = collapsedHeight,
         _expandedHeight = expandedHeight,
         _totalHeight = totalHeight,
@@ -53,11 +53,11 @@ class PanelSizeData {
 
   /// Get total height (in pixels), the panel is allowed to take in the screen.
   /// It is allocated whenever panel is updated. (i.e., build method called)
-  double get constrainedHeight => _constrainedHeight;
+  double? get constrainedHeight => _constrainedHeight;
 
   /// Get total width (in pixels), the panel is allowed to take in the screen.
   /// It is allocated whenever panel is updated. (i.e., build method called)
-  double get constrainedWidth => _constrainedWidth;
+  double? get constrainedWidth => _constrainedWidth;
 
   @override
   String toString() =>

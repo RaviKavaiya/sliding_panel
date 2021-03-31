@@ -7,7 +7,7 @@ class CustomizeDemo extends StatefulWidget {
 }
 
 class _CustomizeDemoState extends State<CustomizeDemo> {
-  PanelController pc;
+  PanelController? pc;
 
   bool draggable = true,
       snap = true,
@@ -121,16 +121,15 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                   spacing: 4,
                   alignment: WrapAlignment.center,
                   children: <Widget>[
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Open panel"),
                       onPressed: () {
-                        pc.collapse().then((_) {
+                        pc!.collapse().then((_) {
 //                          print('panel is collapsed now');
-                        }); // open panel in Collapsed mode
-                        // majority of PanelController methods return Future !!!
+                        });
                       },
                     ),
-                    RaisedButton.icon(
+                    ElevatedButton.icon(
                       icon: Icon(
                         Icons.done,
                         color: backdrop ? Colors.blue : Colors.black,
@@ -142,49 +141,49 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text(
                           "Toggle additional content, rebuild then expand"),
                       onPressed: () {
                         setState(() {
                           additional = !additional;
-                          pc.rebuild(then: pc.expand);
+                          pc!.rebuild(then: pc!.expand);
                         });
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Get current state"),
                       onPressed: () {
-                        print(pc.currentState);
+                        print(pc!.currentState);
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Get current position"),
                       onPressed: () {
-                        print(pc.currentPosition);
+                        print(pc!.currentPosition);
                         // get position between closedHeight and expandedHeight
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Get 50% of panel's height"),
                       onPressed: () {
-                        print(pc.getPercentToPanelPosition(0.5));
+                        print(pc!.getPercentToPanelPosition(0.5));
                         // we give 50% as parameter, this wil return 50% of the panel's height, (gets updated when we use AutoSizing)
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Set position"),
                       onPressed: () {
-                        pc.setPanelPosition(0.3); // just set position
+                        pc!.setPanelPosition(0.3); // just set position
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Set position with animation"),
                       onPressed: () {
-                        pc.setAnimatedPanelPosition(0.3); // set with animation
+                        pc!.setAnimatedPanelPosition(0.3); // set with animation
                       },
                     ),
-                    RaisedButton.icon(
+                    ElevatedButton.icon(
                       icon: Icon(
                         Icons.done,
                         color: snap ? Colors.blue : Colors.black,
@@ -199,7 +198,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton.icon(
+                    ElevatedButton.icon(
                       icon: Icon(
                         Icons.done,
                         color: draggable ? Colors.blue : Colors.black,
@@ -212,7 +211,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton.icon(
+                    ElevatedButton.icon(
                       icon: Icon(
                         Icons.done,
                         color: dragBody ? Colors.blue : Colors.black,
@@ -225,7 +224,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
                         });
                       },
                     ),
-                    RaisedButton.icon(
+                    ElevatedButton.icon(
                       icon: Icon(
                         Icons.done,
                         color: snapForced ? Colors.blue : Colors.black,
@@ -287,7 +286,7 @@ class _CustomizeDemoState extends State<CustomizeDemo> {
           boxShadows: [
             BoxShadow(
               blurRadius: 16.0,
-              color: Colors.orange[400].withOpacity(0.75),
+              color: Colors.orange[400]!.withOpacity(0.75),
               spreadRadius: 4,
               offset: Offset(0, -3),
             ),

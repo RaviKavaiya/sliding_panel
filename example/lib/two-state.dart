@@ -8,9 +8,9 @@ class TwoStateExample extends StatefulWidget {
 
 class _TwoStateExampleState extends State<TwoStateExample>
     with SingleTickerProviderStateMixin {
-  PanelController pc;
+  PanelController? pc;
 
-  AnimationController animationController;
+  AnimationController? animationController;
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
   List<Widget> get _content => [
         ListTile(
           onTap: () {
-            pc.popWithThrowResult(result: 'Pizza').then((_) {
+            pc!.popWithThrowResult(result: 'Pizza').then((_) {
               setState(() {
                 selected = "You ordered Pizza.\n\nNow you can go back.";
                 behavior = BackPressBehavior.POP;
@@ -49,7 +49,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Sandwich');
+            pc!.popWithResult(result: 'Sandwich');
           },
           title: Text(
             'Sandwich',
@@ -58,7 +58,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.sendResult(result: 'Pasta');
+            pc!.sendResult(result: 'Pasta');
             // THIS WILL NOT CLOSE THE PANEL, JUST SEND THE RESULT
           },
           title: Text(
@@ -68,7 +68,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Malai Kofta');
+            pc!.popWithResult(result: 'Malai Kofta');
           },
           title: Text(
             'Malai Kofta',
@@ -77,7 +77,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'French Fries');
+            pc!.popWithResult(result: 'French Fries');
           },
           title: Text(
             'French Fries',
@@ -86,7 +86,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Samosas');
+            pc!.popWithResult(result: 'Samosas');
           },
           title: Text(
             'Samosas',
@@ -95,7 +95,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Toast');
+            pc!.popWithResult(result: 'Toast');
           },
           title: Text(
             'Toast',
@@ -104,7 +104,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Frankie');
+            pc!.popWithResult(result: 'Frankie');
           },
           title: Text(
             'Frankie',
@@ -113,7 +113,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Burger');
+            pc!.popWithResult(result: 'Burger');
           },
           title: Text(
             'Burger',
@@ -122,7 +122,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Salad');
+            pc!.popWithResult(result: 'Salad');
           },
           title: Text(
             'Salad',
@@ -131,7 +131,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Chips');
+            pc!.popWithResult(result: 'Chips');
           },
           title: Text(
             'Chips',
@@ -140,7 +140,7 @@ class _TwoStateExampleState extends State<TwoStateExample>
         ),
         ListTile(
           onTap: () {
-            pc.popWithResult(result: 'Cookies');
+            pc!.popWithResult(result: 'Cookies');
           },
           title: Text(
             'Cookies',
@@ -201,14 +201,14 @@ class _TwoStateExampleState extends State<TwoStateExample>
                 elevation: 16,
                 leading: IconButton(
                   onPressed: () {
-                    if (pc.currentState == PanelState.expanded)
-                      pc.close();
+                    if (pc!.currentState == PanelState.expanded)
+                      pc!.close();
                     else
-                      pc.expand();
+                      pc!.expand();
                   },
                   icon: AnimatedIcon(
                     icon: AnimatedIcons.menu_close,
-                    progress: animationController.view,
+                    progress: animationController!.view,
                   ),
                 ),
               ),
@@ -258,8 +258,8 @@ class _TwoStateExampleState extends State<TwoStateExample>
                       style: Theme.of(context).textTheme.subtitle1,
                     ),
                   ),
-                  RaisedButton(
-                    onPressed: pc.close,
+                  ElevatedButton(
+                    onPressed: pc!.close,
                     child: Text('Open the panel'),
                   ),
                   SizedBox(height: 150),
@@ -300,8 +300,8 @@ class _TwoStateExampleState extends State<TwoStateExample>
             print('You thrown ${result.toString()} at me...');
           },
           onPanelSlide: (x) {
-            animationController.value = pc.percentPosition(
-                pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
+            animationController!.value = pc!.percentPosition(
+                pc!.sizeData.closedHeight, pc!.sizeData.expandedHeight);
           },
 //          isDraggable: false,
           // above will even won't allow user to drag the panel

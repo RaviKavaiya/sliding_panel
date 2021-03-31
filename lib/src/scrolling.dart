@@ -1,19 +1,19 @@
 part of sliding_panel;
 
 class _PanelScrollPosition extends ScrollPositionWithSingleContext {
-  VoidCallback _dragCancelled;
-  final _PanelMetadata metadata;
+  VoidCallback? _dragCancelled;
+  final _PanelMetadata? metadata;
 
   bool get shouldListScroll => pixels > 0.0;
 
-  final _SlidingPanelState panel;
+  final _SlidingPanelState? panel;
 
   _PanelScrollPosition({
-    ScrollPhysics physics,
-    ScrollContext context,
+    required ScrollPhysics physics,
+    required ScrollContext context,
     double initPix = 0.0,
     bool keepScroll = true,
-    ScrollPosition oldPos,
+    ScrollPosition? oldPos,
     this.metadata,
     this.panel,
   }) : super(
@@ -27,8 +27,8 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
   @override
   bool applyContentDimensions(double minScrollExtent, double maxScrollExtent) {
     return super.applyContentDimensions(
-        minScrollExtent - metadata.extraClosedHeight,
-        maxScrollExtent + metadata.extraExpandedHeight);
+        minScrollExtent - metadata!.extraClosedHeight,
+        maxScrollExtent + metadata!.extraExpandedHeight);
   }
 
   @override
@@ -36,7 +36,7 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
     // whenever dragged
 
     _dragPanel(
-      panel,
+      panel!,
       delta: delta,
       isGesture: false,
       shouldListScroll: shouldListScroll,
@@ -60,27 +60,27 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
   @override
   void goBallistic(double velocity) {
     // like onDragEnd
-    if ((panel._controller.currentState == PanelState.closed) &&
-        (panel.widget.panelClosedOptions.detachDragging)) {
+    if ((panel!._controller.currentState == PanelState.closed) &&
+        (panel!.widget.panelClosedOptions.detachDragging)) {
       super.goBallistic(velocity);
       return;
     }
 
-    if (metadata._isBodyDrag.value) {
+    if (metadata!._isBodyDrag.value) {
       // if it is dragged from body, let _dragPanel handle ALL the things...
       super.goBallistic(velocity);
       return;
     }
 
-    if (!metadata.isDraggable) {
+    if (!metadata!.isDraggable) {
       super.goBallistic(velocity);
       return;
     }
 
     if (((velocity.abs() == 0.0) ||
             (velocity < 0.0 && shouldListScroll) ||
-            (velocity > 0.0 && metadata.isExpanded)) &&
-        (panel._controller.currentState != PanelState.indefinite)) {
+            (velocity > 0.0 && metadata!.isExpanded)) &&
+        (panel!._controller.currentState != PanelState.indefinite)) {
       // when dragged and released slowly in middle OR at start with scrolling OR at end
       // and panel is not in-between
       super.goBallistic(velocity);
@@ -90,7 +90,7 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
     _dragCancelled?.call(); // must call
     _dragCancelled = null;
 
-    if (metadata.snapping == PanelSnapping.disabled) {
+    if (metadata!.snapping == PanelSnapping.disabled) {
       // no panel snapping, just scroll the panel
 
       // If velocity is 0, don't scroll panel.
@@ -107,9 +107,9 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
       // snap the panel
 
       double percent =
-          ((metadata.totalHeight * metadata.snappingTriggerPercentage) / 100);
+          ((metadata!.totalHeight * metadata!.snappingTriggerPercentage) / 100);
 
-      percent = percent._safeClamp(0.0, 750.0);
+      percent = percent._safeClamp(0.0, 750.0) as double;
 
       if (percent > 0.0) {
         if (velocity.abs() <= percent) {
@@ -122,7 +122,7 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
       }
 
       if ((velocity.abs() == 0.0) &&
-          (metadata.snapping == PanelSnapping.forced)) {
+          (metadata!.snapping == PanelSnapping.forced)) {
         if (velocity.isNegative)
           velocity = -0.1;
         else
@@ -132,7 +132,7 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
       _PanelSnapData snapData = _PanelSnapData(
         scrollPos: this,
         dragVelocity: velocity,
-        snapping: metadata.snapping,
+        snapping: metadata!.snapping,
       );
 
       snapData.prepareSnapping();
@@ -153,25 +153,25 @@ class _PanelScrollPosition extends ScrollPositionWithSingleContext {
   void dispose() {
     // No need to clear for modal panel, as the animation will ALWAYS
     // need to be completed to pop the route
-    if (!metadata.isModal) _PanelAnimation.clear();
+    if (!metadata!.isModal) _PanelAnimation.clear();
     super.dispose();
   }
 }
 
 class _PanelScrollController extends ScrollController {
-  final _PanelMetadata metadata;
+  final _PanelMetadata? metadata;
 
-  final _SlidingPanelState panel;
+  final _SlidingPanelState? panel;
 
   _PanelScrollController(
       {double initScrollOffset = 0.0, this.metadata, this.panel})
       : super(initialScrollOffset: initScrollOffset);
 
-  _PanelScrollPosition _scrollPosition;
+  _PanelScrollPosition? _scrollPosition;
 
   @override
   _PanelScrollPosition createScrollPosition(ScrollPhysics physics,
-      ScrollContext context, ScrollPosition oldPosition) {
+      ScrollContext context, ScrollPosition? oldPosition) {
     _scrollPosition = _PanelScrollPosition(
       physics: physics,
       context: context,
@@ -179,6 +179,6 @@ class _PanelScrollController extends ScrollController {
       metadata: metadata,
       panel: panel,
     );
-    return _scrollPosition;
+    return _scrollPosition!;
   }
 }

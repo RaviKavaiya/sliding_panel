@@ -6,7 +6,7 @@ part of sliding_panel;
 /// NOTE: A beta feature. Although simple, this is tested roughly.
 /// Some features may not work in all cases. Feedback needed.
 class PanelScrollData {
-  ScrollController _scrollController;
+  ScrollController? _scrollController;
 
   PanelScrollData._(this._scrollController);
 
@@ -15,30 +15,30 @@ class PanelScrollData {
   /// Get the [ScrollController] used by the [SlidingPanel].
   ///
   /// This is exactly the same controller used in the [PanelContent].
-  ScrollController get scrollController => _scrollController;
+  ScrollController? get scrollController => _scrollController;
 
   /// Whether the scrollable content is at its starting position.
   bool get atStart {
-    if (scrollController.position.atEdge) {
-      if (scrollController.position.pixels ==
-          scrollController.position.minScrollExtent) return true;
+    if (scrollController!.position.atEdge) {
+      if (scrollController!.position.pixels ==
+          scrollController!.position.minScrollExtent) return true;
     } else {
-      if (scrollController.position.pixels < 0.0) return true;
+      if (scrollController!.position.pixels < 0.0) return true;
     }
     return false;
   }
 
   /// Whether the scrollable content is at its ending position (i.e., scrolled to end).
   bool get atEnd {
-    if (scrollController.position.atEdge) {
-      if (scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent) return true;
+    if (scrollController!.position.atEdge) {
+      if (scrollController!.position.pixels ==
+          scrollController!.position.maxScrollExtent) return true;
     }
     return false;
   }
 
   /// Whether the scrollable content's position is between starting and ending position.
   bool get inBetween {
-    return (!scrollController.position.atEdge);
+    return (!scrollController!.position.atEdge);
   }
 }

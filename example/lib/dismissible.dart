@@ -7,8 +7,8 @@ class DismissibleExample extends StatefulWidget {
 }
 
 class _DismissibleExampleState extends State<DismissibleExample> {
-  PanelController pc;
-  PanelState currentState = PanelState.closed;
+  PanelController? pc;
+  PanelState? currentState = PanelState.closed;
 
   bool isBackdrop = false;
 
@@ -21,7 +21,7 @@ class _DismissibleExampleState extends State<DismissibleExample> {
 
   List<Widget> get _content => [
         ListTile(
-          onTap: pc.dismiss,
+          onTap: pc!.dismiss,
           title: Text(
             'Dismiss this panel',
             style: Theme.of(context).textTheme.headline6,
@@ -60,19 +60,19 @@ class _DismissibleExampleState extends State<DismissibleExample> {
                   spacing: 4,
                   alignment: WrapAlignment.start,
                   children: <Widget>[
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Close"),
-                      onPressed: pc.close,
+                      onPressed: pc!.close,
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Collapse"),
-                      onPressed: pc.collapse,
+                      onPressed: pc!.collapse,
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Expand"),
-                      onPressed: pc.expand,
+                      onPressed: pc!.expand,
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Draggable from body"),
                       onPressed: () => setState(() => isBackdrop = !isBackdrop),
                     ),

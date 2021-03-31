@@ -8,11 +8,11 @@ class SafeAreaExample extends StatefulWidget {
 
 class _SafeAreaExampleState extends State<SafeAreaExample>
     with SingleTickerProviderStateMixin {
-  PanelController pc;
+  PanelController? pc;
 
   bool safe = true;
 
-  AnimationController animationController;
+  AnimationController? animationController;
 
   @override
   void initState() {
@@ -60,11 +60,11 @@ class _SafeAreaExampleState extends State<SafeAreaExample>
       ];
 
   static final textStyleSubHead =
-      ThemeData.dark().textTheme.subtitle1.copyWith(fontSize: 20);
+      ThemeData.dark().textTheme.subtitle1!.copyWith(fontSize: 20);
   static final textStyleTitle =
-      ThemeData.dark().textTheme.headline6.copyWith(fontSize: 22);
+      ThemeData.dark().textTheme.headline6!.copyWith(fontSize: 22);
   static final textStyleHeadline =
-      ThemeData.dark().textTheme.headline5.copyWith(fontSize: 24);
+      ThemeData.dark().textTheme.headline5!.copyWith(fontSize: 24);
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +123,7 @@ class _SafeAreaExampleState extends State<SafeAreaExample>
             footerWidget: PanelFooterWidget(
               footerContent: ButtonBar(
                 children: <Widget>[
-                  FlatButton(
+                  TextButton(
                     onPressed: null,
                     child: Text(
                       'Footer',
@@ -190,19 +190,17 @@ class _SafeAreaExampleState extends State<SafeAreaExample>
                         Container(
                           margin: EdgeInsets.only(top: 16),
                           padding: const EdgeInsets.all(6.0),
-                          child: RaisedButton(
-                            onPressed: pc.collapse,
-                            padding: EdgeInsets.all(16),
+                          child: ElevatedButton(
+                            onPressed: pc!.collapse,
                             child: Text('Open panel'),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.all(6.0),
-                          child: RaisedButton(
+                          child: ElevatedButton(
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            padding: EdgeInsets.all(16),
                             child: Text('Go back'),
                           ),
                         ),
@@ -215,8 +213,8 @@ class _SafeAreaExampleState extends State<SafeAreaExample>
             ),
           ),
           onPanelSlide: (x) {
-            animationController.value = pc.percentPosition(
-                pc.sizeData.closedHeight, pc.sizeData.expandedHeight);
+            animationController!.value = pc!.percentPosition(
+                pc!.sizeData.closedHeight, pc!.sizeData.expandedHeight);
           },
           parallaxSlideAmount: 0.0,
           snapping: PanelSnapping.forced,
