@@ -4,7 +4,7 @@ part of sliding_panel;
 class SlidingPanelResult extends Notification {
   final dynamic result;
 
-  SlidingPanelResult({@required this.result}) : assert(result != null);
+  SlidingPanelResult({required this.result}) : assert(result != null);
 
   @override
   String toString() => 'SlidingPanelResult { result : ${result.toString()} }';

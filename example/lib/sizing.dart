@@ -7,7 +7,7 @@ class SizingExample extends StatefulWidget {
 }
 
 class _SizingExampleState extends State<SizingExample> {
-  PanelController pc;
+  PanelController? pc;
 
   @override
   void initState() {
@@ -47,7 +47,7 @@ class _SizingExampleState extends State<SizingExample> {
                   spacing: 4,
                   alignment: WrapAlignment.center,
                   children: [
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Change expanded height"),
                       onPressed: () {
                         setState(() {
@@ -58,7 +58,7 @@ class _SizingExampleState extends State<SizingExample> {
                         });
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Change collapsed height"),
                       onPressed: () {
                         setState(() {
@@ -69,7 +69,7 @@ class _SizingExampleState extends State<SizingExample> {
                         });
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Change closed height"),
                       onPressed: () {
                         setState(() {
@@ -80,10 +80,10 @@ class _SizingExampleState extends State<SizingExample> {
                         });
                       },
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Get PanelSizeData"),
                       onPressed: () {
-                        print(pc.sizeData);
+                        print(pc!.sizeData);
                       },
                     ),
                     Padding(

@@ -2,14 +2,14 @@ part of sliding_panel;
 
 class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
   _SlidingPanelModalRoute(
-      {@required this.panelRouteBuilder, @required this.duration});
+      {required this.panelRouteBuilder, required this.duration});
 
   final SlidingPanel Function(_SlidingPanelModalRoute panelModalRoute)
       panelRouteBuilder;
   final Duration duration;
 
   @override
-  Color get barrierColor => null;
+  Color? get barrierColor => null;
 
   @override
   bool get barrierDismissible => false;
@@ -18,8 +18,11 @@ class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
   String get barrierLabel => 'Sliding Panel Modal';
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-      Animation<double> secondaryAnimation) {
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
     return panelRouteBuilder(this);
   }
 
@@ -76,9 +79,9 @@ class _SlidingPanelModalRoute<T> extends PopupRoute<T> {
 /// [PanelAutoSizing.headerSizeIsClosed] used), [PanelState.closed] won't pop
 /// the route. At that time, currentHeight=0.0 ([PanelState.dismissed])
 /// pops the route.
-Future<T> showModalSlidingPanel<T>(
-    {@required BuildContext context,
-    @required SlidingPanel Function(BuildContext) panel}) {
+Future<T?> showModalSlidingPanel<T>(
+    {required BuildContext context,
+    required SlidingPanel Function(BuildContext) panel}) {
   if (panel != null) {
     SlidingPanel _panel = panel(context);
 
